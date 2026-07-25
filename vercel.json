@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "crons": [
+    {
+      "path": "/api/ping-all",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/ping-all",
+      "dest": "/api/ping-all.js"
+    },
+    {
+      "src": "/api/monitors(.*)",
+      "dest": "/api/monitors.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
