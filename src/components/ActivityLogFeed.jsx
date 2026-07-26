@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Activity, CheckCircle2, AlertTriangle, XCircle, RefreshCw } from 'lucide-react';
@@ -13,11 +12,11 @@ export default function ActivityLogFeed({ logs = [], onRefresh, isRefreshing }) 
   };
 
   return (
-    <Card className="flex flex-col justify-between p-5 h-full">
-      <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
+    <div className="glass-card-luxury p-5 rounded-2xl flex flex-col justify-between h-full">
+      <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-cyan-400" />
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Live Ping Telemetry Feed</h4>
+          <h4 className="text-[11px] font-bold uppercase tracking-widest text-slate-300">Live Telemetry Log Stream</h4>
         </div>
         <Button
           variant="ghost"
@@ -25,27 +24,27 @@ export default function ActivityLogFeed({ logs = [], onRefresh, isRefreshing }) 
           onClick={onRefresh}
           disabled={isRefreshing}
           className="h-7 w-7 rounded-lg text-slate-400 hover:text-white"
-          title="Refresh Logs"
+          title="Refresh Telemetry"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
         </Button>
       </div>
 
-      <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+      <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
         {logs.length === 0 ? (
           <p className="text-xs text-slate-500 text-center py-6">No ping activity recorded yet.</p>
         ) : (
           logs.slice(0, 10).map((log, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/60 border border-white/5 text-xs hover:border-white/15 transition-all"
+              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/70 border border-white/5 text-xs hover:border-white/10 transition-all"
             >
               <div className="flex items-center gap-2 overflow-hidden">
                 {getLogIcon(log.status)}
-                <span className="font-semibold text-white truncate max-w-[130px]">{log.targetName || 'Target'}</span>
+                <span className="font-semibold text-white truncate max-w-[120px]">{log.targetName || 'Target'}</span>
                 <Badge
                   variant={log.status >= 200 && log.status < 300 ? 'online' : 'offline'}
-                  className="px-1.5 py-0 text-[10px]"
+                  className="px-1.5 py-0 text-[10px] font-mono"
                 >
                   {log.status}
                 </Badge>
@@ -58,6 +57,6 @@ export default function ActivityLogFeed({ logs = [], onRefresh, isRefreshing }) 
           ))
         )}
       </div>
-    </Card>
+    </div>
   );
 }

@@ -3,104 +3,80 @@
 @import 'tailwindcss/utilities';
 
 @layer base {
-  :root {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --card: 224 71% 6%;
-    --card-foreground: 213 31% 91%;
-    --popover: 224 71% 4%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --radius: 1rem;
-  }
-
   body {
-    @apply font-sans antialiased text-white bg-slate-950 min-h-screen overflow-x-hidden selection:bg-cyan-500 selection:text-black;
+    @apply font-sans antialiased text-slate-100 bg-slate-950 min-h-screen selection:bg-cyan-500 selection:text-black overflow-x-hidden;
   }
 }
 
-/* Hyper-Refined Glassmorphism Utilities */
-.glass-container {
-  background: rgba(15, 20, 32, 0.6);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
-  border-radius: 1.5rem;
-}
-
-.glass-card-shadcn {
-  background: rgba(22, 28, 44, 0.55);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+/* Linear / Spatial Glassmorphism System */
+.glass-panel-luxury {
+  background: rgba(13, 17, 26, 0.55);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
 }
 
-.glass-card-shadcn:hover {
-  background: rgba(30, 38, 60, 0.7);
-  border-color: rgba(6, 182, 212, 0.3);
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6), 0 0 25px rgba(6, 182, 212, 0.2);
-  transform: translateY(-2px);
+.glass-card-luxury {
+  background: rgba(18, 24, 38, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-luxury:hover {
+  background: rgba(24, 32, 50, 0.65);
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 25px rgba(6, 182, 212, 0.18);
+  transform: translateY(-1px);
 }
 
 /* Glowing Pulsing Status LED Indicators */
 .led-online {
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
   animation: led-pulse-green 2s infinite ease-in-out;
 }
 
 .led-warning {
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
   animation: led-pulse-amber 2s infinite ease-in-out;
 }
 
 .led-offline {
-  box-shadow: 0 0 10px rgba(244, 63, 94, 0.8);
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
   animation: led-pulse-rose 2s infinite ease-in-out;
 }
 
 @keyframes led-pulse-green {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 12px rgba(16, 185, 129, 0.8); }
-  50% { opacity: 0.6; transform: scale(0.9); box-shadow: 0 0 4px rgba(16, 185, 129, 0.4); }
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px rgba(16, 185, 129, 0.8); }
+  50% { opacity: 0.5; transform: scale(0.9); box-shadow: 0 0 3px rgba(16, 185, 129, 0.3); }
 }
 
 @keyframes led-pulse-amber {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 12px rgba(245, 158, 11, 0.8); }
-  50% { opacity: 0.6; transform: scale(0.9); box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px rgba(245, 158, 11, 0.8); }
+  50% { opacity: 0.5; transform: scale(0.9); box-shadow: 0 0 3px rgba(245, 158, 11, 0.3); }
 }
 
 @keyframes led-pulse-rose {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 12px rgba(244, 63, 94, 0.8); }
-  50% { opacity: 0.6; transform: scale(0.9); box-shadow: 0 0 4px rgba(244, 63, 94, 0.4); }
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px rgba(244, 63, 94, 0.8); }
+  50% { opacity: 0.5; transform: scale(0.9); box-shadow: 0 0 3px rgba(244, 63, 94, 0.3); }
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(10, 15, 25, 0.3);
-  border-radius: 10px;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.35);
 }

@@ -10,34 +10,36 @@ export default function Header({
   onOpenWallpaperModal,
 }) {
   return (
-    <header className="glass-container p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-white/15 shadow-2xl">
-      <div className="flex items-center gap-3">
-        <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 shadow-lg shadow-cyan-500/30 text-slate-950">
-          <Zap className="w-6 h-6 fill-current" />
+    <header className="glass-panel-luxury px-6 py-4 mb-8 flex items-center justify-between gap-4">
+      {/* Brand Identity */}
+      <div className="flex items-center gap-3.5">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 p-[1px] shadow-lg shadow-cyan-500/20">
+          <div className="w-full h-full bg-slate-950/90 rounded-[11px] flex items-center justify-center">
+            <Zap className="w-5 h-5 text-cyan-400 fill-current" />
+          </div>
         </div>
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-black tracking-tight text-white">PingPulse</h1>
-            <Badge variant="default" className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-lg font-bold tracking-tight text-white font-sans">PingPulse</h1>
+            <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-cyan-500/30 text-cyan-300 bg-cyan-500/10">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              Vercel Cron Active
+              24/7 Vercel Cron
             </Badge>
           </div>
-          <p className="text-xs text-slate-400 font-medium mt-0.5">
-            Keep-Alive Engine & Uptime Telemetry Dashboard
-          </p>
+          <p className="text-xs text-slate-400 font-medium">Keep-Alive Engine for Free Tier Databases & Services</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5">
+      {/* Quick Action Controls */}
+      <div className="flex items-center gap-2">
         <Button
-          variant="glass"
+          variant="outline"
           size="sm"
           onClick={onOpenWallpaperModal}
-          title="Change Wallpaper"
+          className="bg-slate-900/40 border-white/10 hover:border-white/20 text-xs text-slate-300"
         >
-          <Image className="w-4 h-4 mr-1.5 text-cyan-400" />
-          <span>Wallpaper</span>
+          <Image className="w-3.5 h-3.5 mr-1.5 text-cyan-400" />
+          <span>Backdrop</span>
         </Button>
 
         <Button
@@ -45,18 +47,20 @@ export default function Header({
           size="sm"
           onClick={onPingAll}
           disabled={isPingingAll}
+          className="bg-slate-900/40 border-white/10 hover:border-white/20 text-xs text-slate-300"
         >
           <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isPingingAll ? 'animate-spin text-cyan-400' : 'text-slate-400'}`} />
-          <span>{isPingingAll ? 'Pinging All...' : 'Ping All Now'}</span>
+          <span>{isPingingAll ? 'Pinging All...' : 'Ping All'}</span>
         </Button>
 
         <Button
           variant="cyan"
           size="sm"
           onClick={onOpenAddModal}
+          className="text-xs font-semibold"
         >
           <Plus className="w-4 h-4 mr-1" />
-          <span>Add Target Endpoint</span>
+          <span>New Target</span>
         </Button>
       </div>
     </header>

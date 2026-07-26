@@ -1,40 +1,36 @@
 import React from 'react';
-import { Card } from './ui/card';
-import { ShieldCheck, Zap, Flame, Leaf, Wind, Snowflake } from 'lucide-react';
+import { ShieldCheck, Flame, Leaf, Wind, Snowflake } from 'lucide-react';
 
 export default function CircularGauge({ healthScore = 99.4, activeMode = 'eco', onChangeMode }) {
-  const radius = 70;
-  const strokeWidth = 10;
+  const radius = 65;
+  const strokeWidth = 8;
   const normalizedRadius = radius - strokeWidth * 0.5;
   const circumference = normalizedRadius * 2 * Math.PI;
   const strokeDashoffset = circumference - (healthScore / 100) * circumference;
 
   const modes = [
-    { id: 'turbo', label: 'Turbo', icon: Flame, desc: '1m Pings' },
-    { id: 'eco', label: 'Eco', icon: Leaf, desc: '5m Pings' },
-    { id: 'standard', label: 'Standard', icon: Wind, desc: '10m Pings' },
-    { id: 'passive', label: 'Passive', icon: Snowflake, desc: '14m Pings' },
+    { id: 'turbo', label: '1m', icon: Flame, title: 'Turbo' },
+    { id: 'eco', label: '5m', icon: Leaf, title: 'Eco' },
+    { id: 'standard', label: '10m', icon: Wind, title: 'Standard' },
+    { id: 'passive', label: '14m', icon: Snowflake, title: 'Passive' },
   ];
 
   return (
-    <Card className="flex flex-col items-center justify-between p-6 h-full relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute -top-12 -right-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="text-center mb-2">
-        <span className="text-xs font-bold uppercase tracking-widest text-slate-400">System Keep-Alive Health</span>
+    <div className="glass-card-luxury p-5 rounded-2xl flex flex-col items-center justify-between h-full relative overflow-hidden">
+      <div className="text-center mb-1">
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">System Uptime Dial</span>
       </div>
 
-      {/* Circular Speedometer Gauge */}
-      <div className="relative w-52 h-52 flex items-center justify-center my-2">
-        <svg height={radius * 2.6} width={radius * 2.6} className="rotate-[-90deg]">
+      {/* Circular Speedometer Ring Gauge */}
+      <div className="relative w-44 h-44 flex items-center justify-center my-2">
+        <svg height={radius * 2.4} width={radius * 2.4} className="rotate-[-90deg]">
           <circle
-            stroke="rgba(255, 255, 255, 0.08)"
+            stroke="rgba(255, 255, 255, 0.06)"
             fill="transparent"
             strokeWidth={strokeWidth}
             r={normalizedRadius}
-            cx={radius * 1.3}
-            cy={radius * 1.3}
+            cx={radius * 1.2}
+            cy={radius * 1.2}
           />
           <circle
             stroke="url(#cyanBlueGrad)"
@@ -44,8 +40,8 @@ export default function CircularGauge({ healthScore = 99.4, activeMode = 'eco', 
             style={{ strokeDashoffset }}
             strokeLinecap="round"
             r={normalizedRadius}
-            cx={radius * 1.3}
-            cy={radius * 1.3}
+            cx={radius * 1.2}
+            cy={radius * 1.2}
             className="transition-all duration-1000 ease-out"
           />
           <defs>
@@ -58,21 +54,21 @@ export default function CircularGauge({ healthScore = 99.4, activeMode = 'eco', 
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
           <div className="flex items-baseline">
-            <span className="text-5xl font-black text-white tracking-tighter">{healthScore}</span>
-            <span className="text-2xl font-extrabold text-cyan-400">%</span>
+            <span className="text-4xl font-bold text-white font-mono tracking-tight">{healthScore}</span>
+            <span className="text-xl font-semibold text-cyan-400 font-mono">%</span>
           </div>
-          <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider flex items-center gap-1 mt-1 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-            <ShieldCheck className="w-3 h-3" /> All Systems Operational
+          <span className="text-[10px] text-emerald-400 font-medium tracking-wide flex items-center gap-1 mt-0.5">
+            <ShieldCheck className="w-3 h-3" /> Operational
           </span>
         </div>
       </div>
 
-      {/* Mode Selectors */}
-      <div className="w-full mt-4">
-        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block text-center mb-2">
-          Ping Frequency Preset
+      {/* Mode Preset Buttons */}
+      <div className="w-full mt-2">
+        <span className="text-[9px] uppercase font-semibold text-slate-400 tracking-wider block text-center mb-1.5">
+          Ping Interval Preset
         </span>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-1.5">
           {modes.map((mode) => {
             const Icon = mode.icon;
             const isActive = activeMode === mode.id;
@@ -80,19 +76,20 @@ export default function CircularGauge({ healthScore = 99.4, activeMode = 'eco', 
               <button
                 key={mode.id}
                 onClick={() => onChangeMode && onChangeMode(mode.id)}
-                className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all duration-200 ${
+                title={`${mode.title} (${mode.label})`}
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg border text-xs transition-all ${
                   isActive
-                    ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-300 shadow-md shadow-cyan-500/20 font-bold scale-105'
-                    : 'bg-slate-900/40 border-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                    ? 'bg-cyan-500/20 border-cyan-400/40 text-cyan-300 font-bold shadow-sm shadow-cyan-500/20'
+                    : 'bg-slate-900/40 border-white/5 text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Icon className="w-4 h-4 mb-1" />
-                <span className="text-[10px]">{mode.label}</span>
+                <Icon className="w-3.5 h-3.5 mb-0.5" />
+                <span className="text-[10px] font-mono">{mode.label}</span>
               </button>
             );
           })}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

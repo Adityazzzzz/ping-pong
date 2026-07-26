@@ -8,8 +8,6 @@ import ActivityLogFeed from './components/ActivityLogFeed';
 import AddMonitorModal from './components/AddMonitorModal';
 import WallpaperSelector from './components/WallpaperSelector';
 import { Button } from './components/ui/button';
-import { Badge } from './components/ui/badge';
-import { Card } from './components/ui/card';
 
 import {
   getStoredMonitors,
@@ -17,7 +15,7 @@ import {
   getStoredWallpaper,
   setStoredWallpaper,
 } from './utils/storage';
-import { Activity, Plus, ShieldCheck, Database, Server, Globe, Sparkles } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function App() {
   const [monitors, setMonitors] = useState([]);
@@ -185,19 +183,19 @@ export default function App() {
   ];
 
   return (
-    <div className="relative min-h-screen w-full font-sans text-white bg-slate-950 selection:bg-cyan-500 selection:text-black overflow-x-hidden">
-      {/* Dynamic Background Image */}
+    <div className="relative min-h-screen w-full font-sans text-slate-100 bg-slate-950 selection:bg-cyan-500 selection:text-black overflow-x-hidden">
+      {/* Background Image with Dark Vignette */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img
           src={wallpaper}
-          alt="Atmosphere Backdrop"
-          className="w-full h-full object-cover filter brightness-[0.6] saturate-[1.1] transition-all duration-700"
+          alt="Backdrop Scenery"
+          className="w-full h-full object-cover filter brightness-[0.5] saturate-[1.1] transition-all duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-950/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/80 to-slate-950/95" />
       </div>
 
-      {/* Main Glass Dashboard Workspace */}
-      <div className="relative z-10 p-6 md:p-10 max-w-[1600px] mx-auto min-h-screen flex flex-col justify-between">
+      {/* Main Glass Workspace */}
+      <div className="relative z-10 p-6 md:p-10 max-w-[1500px] mx-auto min-h-screen flex flex-col justify-between">
         <div>
           {/* Header */}
           <Header
@@ -215,25 +213,25 @@ export default function App() {
             healthScore={healthScore}
           />
 
-          {/* Main Content Grid: Monitored Endpoints (Left 8 cols) + Control Widget (Right 4 cols) */}
+          {/* Main Layout Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Column (8 Cols) */}
+            {/* Left 8 Columns */}
             <div className="lg:col-span-8 space-y-4">
-              {/* Category Filter Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-slate-950/60 backdrop-blur-2xl border border-white/10">
-                <div className="flex items-center gap-1.5 overflow-x-auto">
+              {/* Category Filter Tabs Bar */}
+              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl bg-slate-950/70 backdrop-blur-2xl border border-white/10">
+                <div className="flex items-center gap-1 overflow-x-auto">
                   {categories.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setActiveCategory(cat.id)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 ${
                         activeCategory === cat.id
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-lg shadow-cyan-500/20'
-                          : 'text-slate-400 hover:text-white hover:bg-white/10'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 font-semibold shadow-sm'
+                          : 'text-slate-400 hover:text-white hover:bg-white/5'
                       }`}
                     >
                       <span>{cat.label}</span>
-                      <span className="px-1.5 py-0.2 rounded-full bg-white/10 text-[10px]">
+                      <span className="px-1.5 py-0.2 rounded-full bg-white/10 text-[10px] font-mono">
                         {cat.count}
                       </span>
                     </button>
@@ -244,7 +242,7 @@ export default function App() {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsAddModalOpen(true)}
-                  className="h-8 text-xs border-dashed border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
+                  className="h-7 text-xs border-dashed border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" />
                   <span>Add Target</span>
@@ -258,9 +256,9 @@ export default function App() {
                     <motion.div
                       key={monitor.id}
                       layout
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
                       transition={{ duration: 0.2 }}
                     >
                       <TargetCard
@@ -276,7 +274,7 @@ export default function App() {
               </motion.div>
             </div>
 
-            {/* Right Column (4 Cols): Speedometer Health Dial + Activity Telemetry Stream */}
+            {/* Right 4 Columns: Speedometer Ring Dial + Live Telemetry Log Feed */}
             <div className="lg:col-span-4 space-y-6">
               <CircularGauge
                 healthScore={healthScore}
@@ -294,7 +292,7 @@ export default function App() {
 
         {/* Footer */}
         <footer className="mt-12 text-center text-xs text-slate-500 font-medium py-4 border-t border-white/5">
-          PingPulse Keep-Alive Engine • Built with React, Shadcn UI & Vercel Serverless Cron
+          PingPulse Keep-Alive Engine • High Performance Glassmorphic Uptime Dashboard
         </footer>
       </div>
 

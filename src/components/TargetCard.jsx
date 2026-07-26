@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Card } from './ui/card';
 import { Switch } from './ui/switch';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Database, Server, Globe, RefreshCw, Trash2, Copy, Check, ExternalLink } from 'lucide-react';
+import { Database, Server, Globe, RefreshCw, Trash2, Copy, Check } from 'lucide-react';
 import { formatRelativeTime, getLatencyBadge } from '../lib/utils';
 
 export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelete, isPinging }) {
@@ -24,26 +23,24 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Status LED glow class
   const ledClasses = {
     online: 'led-online bg-emerald-500',
     degraded: 'led-warning bg-amber-500',
     offline: 'led-offline bg-rose-500',
   };
 
-  // Generate mini sparkline visual (last 10 pings)
   const sparklineLogs = (monitor.logs || []).slice(0, 10).reverse();
 
   return (
-    <Card className={`flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${!monitor.active ? 'opacity-50 grayscale-[30%]' : ''}`}>
-      {/* Top Header: Provider Icon + Name + Switch */}
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex items-center gap-2.5">
+    <div className={`glass-card-luxury p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${!monitor.active ? 'opacity-40 grayscale-[40%]' : ''}`}>
+      {/* Header: Icon + Name + Switch */}
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-cyan-400">
             <Icon className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white tracking-tight truncate max-w-[160px]" title={monitor.name}>
+            <h4 className="text-sm font-bold text-white tracking-tight truncate max-w-[170px]" title={monitor.name}>
               {monitor.name}
             </h4>
             <div className="flex items-center gap-1.5 mt-0.5">
@@ -53,7 +50,6 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
           </div>
         </div>
 
-        {/* Shadcn Switch */}
         <Switch
           checked={monitor.active}
           onCheckedChange={() => onToggleActive(monitor.id)}
@@ -62,8 +58,8 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
       </div>
 
       {/* URL Endpoint Bar */}
-      <div className="bg-slate-950/60 p-2 rounded-xl border border-white/5 flex items-center justify-between gap-2 my-2">
-        <span className="text-xs font-mono text-slate-400 truncate flex-1" title={monitor.url}>
+      <div className="bg-slate-950/70 px-3 py-1.5 rounded-lg border border-white/5 flex items-center justify-between gap-2 my-2">
+        <span className="text-[11px] font-mono text-slate-400 truncate flex-1" title={monitor.url}>
           {monitor.url}
         </span>
         <button
@@ -75,13 +71,13 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
         </button>
       </div>
 
-      {/* Mini Sparkline Status Bar */}
+      {/* Sparkline History Ticks */}
       <div className="my-2">
         <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
-          <span>Ping History (Last 10)</span>
-          <span className="font-semibold text-cyan-300">Every {monitor.interval}m</span>
+          <span>Ping History</span>
+          <span className="font-mono text-cyan-400">Every {monitor.interval}m</span>
         </div>
-        <div className="flex items-center gap-1 h-3">
+        <div className="flex items-center gap-1 h-2.5">
           {sparklineLogs.length === 0 ? (
             <div className="w-full h-1.5 rounded-full bg-slate-800" />
           ) : (
@@ -91,10 +87,10 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
                 title={`${log.status} - ${log.latency}ms (${formatRelativeTime(log.timestamp)})`}
                 className={`flex-1 h-full rounded-sm transition-all ${
                   log.status >= 200 && log.status < 300
-                    ? 'bg-emerald-500/80 shadow-[0_0_6px_rgba(16,185,129,0.5)]'
+                    ? 'bg-emerald-500/80 shadow-[0_0_4px_rgba(16,185,129,0.4)]'
                     : log.status >= 300 && log.status < 400
-                    ? 'bg-amber-500/80 shadow-[0_0_6px_rgba(245,158,11,0.5)]'
-                    : 'bg-rose-500/80 shadow-[0_0_6px_rgba(244,63,94,0.5)]'
+                    ? 'bg-amber-500/80 shadow-[0_0_4px_rgba(245,158,11,0.4)]'
+                    : 'bg-rose-500/80 shadow-[0_0_4px_rgba(244,63,94,0.4)]'
                 }`}
               />
             ))
@@ -102,13 +98,13 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
         </div>
       </div>
 
-      {/* Bottom Footer Stats & Action Buttons */}
-      <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2 mt-2">
+      {/* Actions & Metrics Row */}
+      <div className="pt-2.5 border-t border-white/5 flex items-center justify-between gap-2 mt-1">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className={getLatencyBadge(monitor.latency)}>
+          <Badge variant="outline" className={`text-[10px] px-2 py-0 font-mono ${getLatencyBadge(monitor.latency)}`}>
             {monitor.latency > 0 ? `${monitor.latency} ms` : '--'}
           </Badge>
-          <span className="text-[10px] text-slate-400">{formatRelativeTime(monitor.lastPing)}</span>
+          <span className="text-[10px] text-slate-400 font-medium">{formatRelativeTime(monitor.lastPing)}</span>
         </div>
 
         <div className="flex items-center gap-1">
@@ -117,7 +113,7 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
             size="sm"
             onClick={() => onPingNow(monitor.id)}
             disabled={isPinging || !monitor.active}
-            className="h-7 px-3 text-[11px]"
+            className="h-7 px-3 text-[11px] font-semibold"
           >
             <RefreshCw className={`w-3 h-3 mr-1 ${isPinging ? 'animate-spin' : ''}`} />
             <span>Ping</span>
@@ -134,6 +130,6 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
           </Button>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
