@@ -15,7 +15,7 @@ import {
   getStoredWallpaper,
   setStoredWallpaper,
 } from './utils/storage';
-import { Plus } from 'lucide-react';
+import { Plus, LayoutGrid, Database, Server, Globe, Zap } from 'lucide-react';
 
 export default function App() {
   const [monitors, setMonitors] = useState([]);
@@ -176,111 +176,156 @@ export default function App() {
       : 0;
 
   const categories = [
-    { id: 'all', label: 'All Targets', count: monitors.length },
-    { id: 'database', label: 'Databases', count: monitors.filter((m) => m.type === 'database').length },
-    { id: 'api', label: 'APIs & Services', count: monitors.filter((m) => m.type === 'api').length },
-    { id: 'web', label: 'Web Apps', count: monitors.filter((m) => m.type === 'web').length },
+    { id: 'all', label: 'All Targets', count: monitors.length, icon: LayoutGrid },
+    { id: 'database', label: 'Databases', count: monitors.filter((m) => m.type === 'database').length, icon: Database },
+    { id: 'api', label: 'APIs & Services', count: monitors.filter((m) => m.type === 'api').length, icon: Server },
+    { id: 'web', label: 'Web Apps', count: monitors.filter((m) => m.type === 'web').length, icon: Globe },
   ];
 
   return (
-    <div className="relative min-h-screen w-full font-sans text-slate-100 bg-[#05070d] bg-mesh-radial selection:bg-cyan-500 selection:text-black overflow-x-hidden">
-      {/* Background Image with Dark Vignette */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+    <div className="relative min-h-screen w-full bg-[#05070d] overflow-hidden flex items-center justify-center font-sans">
+      {/* Background Image with dim and blur filters */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <img
           src={wallpaper}
           alt="Backdrop Scenery"
-          className="w-full h-full object-cover filter brightness-[0.4] saturate-[1.2] transition-all duration-700"
+          className="w-full h-full object-cover filter brightness-[0.7] saturate-[1.1] transition-all duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#05070d]/80 via-[#05070d]/90 to-[#05070d]" />
+        <div className="absolute inset-0 bg-[#05070d]/50 backdrop-blur-[20px]" />
       </div>
 
-      {/* Main Glass Workspace */}
-      <div className="relative z-10 p-6 md:p-10 max-w-[1500px] mx-auto min-h-screen flex flex-col justify-between">
-        <div>
-          {/* Header */}
+      {/* Decorative Ambient Color Glow Spheres for depth (macOS/Linear vibe) */}
+      <div className="absolute top-[20%] left-[20%] w-[35rem] h-[35rem] rounded-full ambient-glow-1 blur-[120px] pointer-events-none z-0 opacity-40 animate-pulse" />
+      <div className="absolute bottom-[20%] right-[20%] w-[30rem] h-[30rem] rounded-full ambient-glow-2 blur-[100px] pointer-events-none z-0 opacity-30 animate-pulse" />
+
+      {/* Main Glass Workspace Window */}
+      <div className="relative z-10 w-full max-w-[1550px] h-[92vh] mx-4 md:mx-8 glass-panel rounded-[32px] overflow-hidden flex flex-col md:flex-row shadow-[0_35px_80px_rgba(0,0,0,0.6)] border border-white/10">
+        
+        {/* SIDEBAR: Category navigation and circular dial */}
+        <aside className="w-full md:w-[320px] flex flex-col justify-between border-r border-white/10 p-6 bg-white/[0.01] backdrop-blur-md shrink-0">
+          <div className="space-y-8">
+            {/* Branding Identity */}
+            <div className="flex items-center gap-3 px-2">
+              <div className="w-9 h-9 rounded-xl bg-white/10 p-[1px] border border-white/20 shadow-sm flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white animate-pulse" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight text-white font-sans flex items-center gap-2">
+                  PingPulse
+                  <span className="text-[9px] font-mono tracking-widest bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 px-1.5 py-0.5 rounded font-bold">1.0</span>
+                </h1>
+                <p className="text-[10px] text-white/40 uppercase tracking-widest font-semibold mt-0.5">Uptime Control</p>
+              </div>
+            </div>
+
+            {/* Sidebar Search/Selector Categories */}
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-2">MONITORING CLASSIFICATION</span>
+              <nav className="space-y-1">
+                {categories.map((cat) => {
+                  const CatIcon = cat.icon;
+                  const isActive = activeCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setActiveCategory(cat.id)}
+                      className={`w-full px-4 py-3 rounded-2xl text-sm font-medium transition-all flex items-center justify-between group ${
+                        isActive
+                          ? 'bg-white/10 text-white shadow-sm border border-white/5'
+                          : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <CatIcon className={`w-4.5 h-4.5 transition-transform group-hover:scale-105 ${isActive ? 'text-white' : 'text-white/40'}`} />
+                        <span>{cat.label}</span>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${isActive ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>
+                        {cat.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          </div>
+
+          {/* Embedded Speedometer Ring Gauge Dial */}
+          <div className="mt-8">
+            <CircularGauge
+              healthScore={healthScore}
+              activeMode={activeMode}
+              onChangeMode={setActiveMode}
+            />
+          </div>
+        </aside>
+
+        {/* MAIN PANEL CONTENT CANVAS */}
+        <main className="flex-1 min-w-0 flex flex-col h-full bg-black/10">
+          
+          {/* TOP HEADER STATUS BAR */}
           <Header
             onPingAll={handlePingAllNow}
             isPingingAll={isPingingAll}
             onOpenAddModal={() => setIsAddModalOpen(true)}
             onOpenWallpaperModal={() => setIsWallpaperModalOpen(true)}
-          />
-
-          {/* Core Stats Bar */}
-          <StatsBar
             totalCount={totalCount}
             activeCount={activeCount}
             avgLatency={avgLatency}
             healthScore={healthScore}
           />
 
-          {/* Main Layout Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left 8 Columns */}
-            <div className="lg:col-span-8 space-y-4">
-              {/* Category Filter Tabs Bar */}
-              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl bg-[#090d16]/80 backdrop-blur-2xl border border-white/10">
-                <div className="flex items-center gap-1 overflow-x-auto">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setActiveCategory(cat.id)}
-                      className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 ${
-                        activeCategory === cat.id
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 font-bold shadow-md shadow-cyan-500/20'
-                          : 'text-slate-400 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      <span>{cat.label}</span>
-                      <span className="px-1.5 py-0.2 rounded-full bg-white/10 text-[10px] font-mono">
-                        {cat.count}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="h-8 text-xs border-dashed border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10 font-mono"
-                >
-                  <Plus className="w-3.5 h-3.5 mr-1" />
-                  <span>New Target</span>
-                </Button>
+          {/* CANVAS WORKSPACE (SCROLLABLE GRID & FEED) */}
+          <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 custom-scrollbar">
+            
+            {/* Targets Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-white/40">Target Nodes ({filteredMonitors.length})</h2>
+                <div className="h-[1px] flex-1 bg-white/5 mx-4" />
               </div>
 
-              {/* Endpoint Cards Grid */}
-              <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <AnimatePresence>
-                  {filteredMonitors.map((monitor) => (
-                    <motion.div
-                      key={monitor.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <TargetCard
-                        monitor={monitor}
-                        onToggleActive={handleToggleActive}
-                        onPingNow={handlePingSingle}
-                        onDelete={handleDeleteTarget}
-                        isPinging={pingingIds.includes(monitor.id)}
-                      />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
+              {filteredMonitors.length === 0 ? (
+                <div className="glass-card p-12 text-center rounded-3xl border border-white/5">
+                  <p className="text-white/40 text-sm">No targets configured for this category.</p>
+                  <Button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="glass-button mt-4 h-9 px-4 text-xs font-semibold"
+                  >
+                    Configure First Target
+                  </Button>
+                </div>
+              ) : (
+                <motion.div layout className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                  <AnimatePresence mode="popLayout">
+                    {filteredMonitors.map((monitor) => (
+                      <motion.div
+                        key={monitor.id}
+                        layout
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.25, ease: 'easeOut' }}
+                      >
+                        <TargetCard
+                          monitor={monitor}
+                          onToggleActive={handleToggleActive}
+                          onPingNow={handlePingSingle}
+                          onDelete={handleDeleteTarget}
+                          isPinging={pingingIds.includes(monitor.id)}
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              )}
             </div>
 
-            {/* Right 4 Columns: Speedometer Ring Dial + Live Telemetry Log Feed */}
-            <div className="lg:col-span-4 space-y-6">
-              <CircularGauge
-                healthScore={healthScore}
-                activeMode={activeMode}
-                onChangeMode={setActiveMode}
-              />
+            {/* Bottom Section: Wide Telemetry stream */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-white/40">Live Logs</h2>
+                <div className="h-[1px] flex-1 bg-white/5 mx-4" />
+              </div>
               <ActivityLogFeed
                 logs={recentLogs}
                 onRefresh={handlePingAllNow}
@@ -288,12 +333,7 @@ export default function App() {
               />
             </div>
           </div>
-        </div>
-
-        {/* Footer */}
-        <footer className="mt-12 text-center text-xs text-slate-500 font-mono py-4 border-t border-white/5">
-          PingPulse ⚡ Keep-Alive Engine • Raycast/Vercel Obsidian Theme
-        </footer>
+        </main>
       </div>
 
       {/* Modals */}

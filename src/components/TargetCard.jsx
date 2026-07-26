@@ -23,29 +23,32 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const ledClasses = {
-    online: 'led-online bg-emerald-500',
-    degraded: 'led-warning bg-amber-500',
-    offline: 'led-offline bg-rose-500',
+  const sparklineLogs = (monitor.logs || []).slice(0, 12).reverse();
+
+  // Status-LED class maps to index.css animations
+  const getStatusClass = (status) => {
+    if (status === 'degraded' || status === 'warning') return 'status-warning';
+    if (status === 'offline') return 'status-offline';
+    return 'status-online';
   };
 
-  const sparklineLogs = (monitor.logs || []).slice(0, 10).reverse();
-
   return (
-    <div className={`obsidian-card p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${!monitor.active ? 'opacity-40 grayscale-[40%]' : ''}`}>
+    <div className={`glass-card p-6 sm:p-7 rounded-3xl flex flex-col justify-between relative overflow-hidden transition-all duration-350 group ${!monitor.active ? 'opacity-40 grayscale-[40%]' : ''}`}>
       {/* Header: Icon + Name + Switch */}
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-cyan-400 shadow-md">
-            <Icon className="w-4 h-4" />
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 text-white shadow-md flex items-center justify-center">
+            <Icon className="w-5 h-5 text-white/80" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white tracking-tight truncate max-w-[170px]" title={monitor.name}>
+            <h4 className="text-base font-semibold text-white tracking-tight truncate max-w-[180px]" title={monitor.name}>
               {monitor.name}
             </h4>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-2 h-2 rounded-full ${ledClasses[monitor.status] || ledClasses.online}`} />
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-300 font-mono">{monitor.status}</span>
+            <div className="flex items-center gap-2 mt-1">
+              <span className={`status-dot ${getStatusClass(monitor.status)}`} />
+              <span className="text-xs font-semibold uppercase tracking-wider text-white/40 font-mono">
+                {monitor.status || 'online'}
+              </span>
             </div>
           </div>
         </div>
@@ -57,65 +60,77 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
         />
       </div>
 
-      {/* URL Endpoint Bar */}
-      <div className="bg-[#05070d]/90 px-3 py-1.5 rounded-xl border border-white/5 flex items-center justify-between gap-2 my-2">
-        <span className="text-[11px] font-mono text-slate-400 truncate flex-1" title={monitor.url}>
+      {/* URL Endpoint Bar (macOS address bar style) */}
+      <div 
+        onClick={handleCopyUrl}
+        className="bg-white/[0.03] hover:bg-white/[0.06] active:bg-white/[0.08] px-4 py-2.5 rounded-2xl border border-white/5 hover:border-white/10 flex items-center justify-between gap-3 my-4 transition-all duration-200 cursor-pointer"
+        title="Click to copy URL"
+      >
+        <span className="text-xs font-mono text-white/65 truncate flex-1 group-hover:text-white/85 transition-colors" title={monitor.url}>
           {monitor.url}
         </span>
         <button
-          onClick={handleCopyUrl}
-          className="p-1 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"
-          title="Copy URL"
+          type="button"
+          className="p-1 rounded-md text-white/40 hover:text-white transition-all"
         >
-          {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+          {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
         </button>
       </div>
 
-      {/* Sparkline History Ticks */}
-      <div className="my-2">
-        <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1 font-mono">
-          <span>PING HISTORY</span>
-          <span className="text-cyan-400 font-semibold">EVERY {monitor.interval}M</span>
+      {/* Latency Wave History (Audio visualizer style) */}
+      <div className="my-4">
+        <div className="flex items-center justify-between text-xs text-white/30 mb-2.5 font-mono">
+          <span className="font-semibold tracking-wider">LATENCY HISTOGRAM</span>
+          <span className="text-white/50 font-medium">EVERY {monitor.interval}M</span>
         </div>
-        <div className="flex items-center gap-1 h-2.5">
+        
+        <div className="flex items-end gap-1.5 h-12 px-1">
           {sparklineLogs.length === 0 ? (
-            <div className="w-full h-1.5 rounded-full bg-slate-800" />
+            <div className="w-full h-1 bg-white/5 rounded-full" />
           ) : (
-            sparklineLogs.map((log, idx) => (
-              <div
-                key={idx}
-                title={`${log.status} - ${log.latency}ms (${formatRelativeTime(log.timestamp)})`}
-                className={`flex-1 h-full rounded-sm transition-all ${
-                  log.status >= 200 && log.status < 300
-                    ? 'bg-emerald-500/80 shadow-[0_0_5px_rgba(16,185,129,0.5)]'
-                    : log.status >= 300 && log.status < 400
-                    ? 'bg-amber-500/80 shadow-[0_0_5px_rgba(245,158,11,0.5)]'
-                    : 'bg-rose-500/80 shadow-[0_0_5px_rgba(244,63,94,0.5)]'
-                }`}
-              />
-            ))
+            sparklineLogs.map((log, idx) => {
+              const latency = log.latency || 50;
+              // Scale height relative to 400ms max latency, minimum height of 25%
+              const heightPercent = Math.min(Math.max((latency / 400) * 100, 25), 100);
+              const isSuccess = log.status >= 200 && log.status < 300;
+              const isWarning = log.status >= 300 && log.status < 400;
+
+              let colorClass = 'bg-emerald-400/35 hover:bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.2)]';
+              if (isWarning) colorClass = 'bg-amber-400/40 hover:bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.2)]';
+              if (!isSuccess && !isWarning) colorClass = 'bg-rose-500/50 hover:bg-rose-500 shadow-[0_0_8px_rgba(239,68,68,0.2)]';
+
+              return (
+                <div
+                  key={idx}
+                  title={`${log.status} - ${log.latency}ms (${formatRelativeTime(log.timestamp)})`}
+                  style={{ height: `${heightPercent}%` }}
+                  className={`flex-1 rounded-full transition-all duration-300 cursor-pointer ${colorClass}`}
+                />
+              );
+            })
           )}
         </div>
       </div>
 
       {/* Actions & Metrics Row */}
-      <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2 mt-1">
+      <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-3 mt-2 h-12">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className={`text-[10px] font-mono px-2 py-0.5 ${getLatencyBadge(monitor.latency)}`}>
+          <Badge variant="outline" className={`text-xs font-mono px-2.5 py-0.5 border-white/10 ${getLatencyBadge(monitor.latency)}`}>
             {monitor.latency > 0 ? `${monitor.latency} ms` : '--'}
           </Badge>
-          <span className="text-[10px] text-slate-400 font-medium">{formatRelativeTime(monitor.lastPing)}</span>
+          <span className="text-xs text-white/35 font-medium">{formatRelativeTime(monitor.lastPing)}</span>
         </div>
 
-        <div className="flex items-center gap-1">
+        {/* Action buttons fade in smoothly on card hover to reduce noise */}
+        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <Button
-            variant="cyan"
+            variant="ghost"
             size="sm"
             onClick={() => onPingNow(monitor.id)}
             disabled={isPinging || !monitor.active}
-            className="h-7 px-3 text-[11px] font-mono font-bold"
+            className="h-9 px-4 text-xs font-mono font-semibold text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all"
           >
-            <RefreshCw className={`w-3 h-3 mr-1 ${isPinging ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 mr-2 ${isPinging ? 'animate-spin' : ''}`} />
             <span>PING</span>
           </Button>
 
@@ -124,9 +139,9 @@ export default function TargetCard({ monitor, onToggleActive, onPingNow, onDelet
             size="icon"
             onClick={() => onDelete(monitor.id)}
             title="Delete Target"
-            className="h-7 w-7 rounded-lg"
+            className="h-9 w-9 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white transition-all shadow-sm flex items-center justify-center"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>

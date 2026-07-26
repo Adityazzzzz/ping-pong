@@ -37,7 +37,7 @@ export default function WallpaperSelector({ isOpen, onClose, currentWallpaper, o
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-400/30">
+            <div className="p-3 rounded-2xl bg-white/10 text-white border border-white/20">
               <Image className="w-5 h-5" />
             </div>
             <div>
@@ -57,7 +57,7 @@ export default function WallpaperSelector({ isOpen, onClose, currentWallpaper, o
                 key={wp.url}
                 onClick={() => onSelectWallpaper(wp.url)}
                 className={`relative h-32 rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-300 group ${
-                  isSelected ? 'border-cyan-400 scale-[1.02] shadow-xl shadow-cyan-500/20' : 'border-white/10 hover:border-white/30'
+                  isSelected ? 'border-white scale-[1.02] shadow-xl shadow-black/50' : 'border-white/10 hover:border-white/30'
                 }`}
               >
                 <img
@@ -69,7 +69,7 @@ export default function WallpaperSelector({ isOpen, onClose, currentWallpaper, o
                   <span className="text-xs font-bold text-white">{wp.name}</span>
                 </div>
                 {isSelected && (
-                  <div className="absolute top-3 right-3 p-1.5 rounded-full bg-cyan-400 text-slate-950 shadow-lg">
+                  <div className="absolute top-3 right-3 p-1.5 rounded-full bg-white text-black shadow-lg">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                 )}
