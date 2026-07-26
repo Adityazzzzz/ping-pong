@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,32 +8,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        glass: {
-          bg: 'rgba(22, 26, 36, 0.65)',
-          border: 'rgba(255, 255, 255, 0.12)',
-          card: 'rgba(30, 36, 50, 0.55)',
-          hover: 'rgba(255, 255, 255, 0.08)',
-          active: 'rgba(59, 130, 246, 0.2)',
+        obsidian: {
+          950: '#05070d',
+          900: '#090d16',
+          850: '#0e1422',
+          800: '#141c2e',
+          700: '#1e293b',
         },
-        pulse: {
-          blue: '#3b82f6',
+        neon: {
+          emerald: '#10b981',
           cyan: '#06b6d4',
-          green: '#10b981',
-          amber: '#f59e0b',
+          violet: '#8b5cf6',
           rose: '#f43f5e',
+          amber: '#f59e0b',
         }
       },
       fontFamily: {
-        sans: ['Outfit', 'Inter', 'sans-serif'],
-      },
-      backdropBlur: {
-        '2xl': '28px',
-        '3xl': '40px',
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {
-        'glass-glow': '0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 0 1px rgba(255, 255, 255, 0.1)',
-        'cyan-glow': '0 0 20px rgba(6, 182, 212, 0.4)',
-        'blue-glow': '0 0 25px rgba(59, 130, 246, 0.5)',
+        'glow-cyan': '0 0 25px rgba(6, 182, 212, 0.25)',
+        'glow-emerald': '0 0 25px rgba(16, 185, 129, 0.25)',
+        'glow-violet': '0 0 25px rgba(139, 92, 246, 0.25)',
+        'card-obsidian': '0 20px 40px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
       }
     },
   },

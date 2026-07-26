@@ -4,68 +4,76 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased text-slate-100 bg-slate-950 min-h-screen selection:bg-cyan-500 selection:text-black overflow-x-hidden;
+    @apply font-sans antialiased text-slate-100 bg-[#05070d] min-h-screen selection:bg-cyan-500 selection:text-black overflow-x-hidden;
   }
 }
 
-/* Linear / Spatial Glassmorphism System */
-.glass-panel-luxury {
-  background: rgba(13, 17, 26, 0.55);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
+/* Ambient Radial Mesh Backdrop */
+.bg-mesh-radial {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+}
+
+/* Obsidian Glassmorphism System */
+.obsidian-panel {
+  background: rgba(14, 20, 34, 0.65);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.75), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
   border-radius: 1.25rem;
 }
 
-.glass-card-luxury {
-  background: rgba(18, 24, 38, 0.45);
+.obsidian-card {
+  background: rgba(20, 28, 46, 0.5);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-card-luxury:hover {
-  background: rgba(24, 32, 50, 0.65);
-  border-color: rgba(6, 182, 212, 0.35);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 25px rgba(6, 182, 212, 0.18);
-  transform: translateY(-1px);
+.obsidian-card:hover {
+  background: rgba(26, 36, 60, 0.7);
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(6, 182, 212, 0.2);
+  transform: translateY(-2px);
 }
 
-/* Glowing Pulsing Status LED Indicators */
+/* Pulsing Status LED Indicators */
 .led-online {
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
-  animation: led-pulse-green 2s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.9);
+  animation: pulse-emerald 2s infinite ease-in-out;
 }
 
 .led-warning {
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
-  animation: led-pulse-amber 2s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.9);
+  animation: pulse-amber 2s infinite ease-in-out;
 }
 
 .led-offline {
-  box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
-  animation: led-pulse-rose 2s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.9);
+  animation: pulse-rose 2s infinite ease-in-out;
 }
 
-@keyframes led-pulse-green {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px rgba(16, 185, 129, 0.8); }
+@keyframes pulse-emerald {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 12px rgba(16, 185, 129, 0.9); }
   50% { opacity: 0.5; transform: scale(0.9); box-shadow: 0 0 3px rgba(16, 185, 129, 0.3); }
 }
 
-@keyframes led-pulse-amber {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px rgba(245, 158, 11, 0.8); }
+@keyframes pulse-amber {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 12px rgba(245, 158, 11, 0.9); }
   50% { opacity: 0.5; transform: scale(0.9); box-shadow: 0 0 3px rgba(245, 158, 11, 0.3); }
 }
 
-@keyframes led-pulse-rose {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px rgba(244, 63, 94, 0.8); }
+@keyframes pulse-rose {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 12px rgba(244, 63, 94, 0.9); }
   50% { opacity: 0.5; transform: scale(0.9); box-shadow: 0 0 3px rgba(244, 63, 94, 0.3); }
 }
 
-/* Custom Scrollbars */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -74,9 +82,9 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.35);
+  background: rgba(6, 182, 212, 0.5);
 }

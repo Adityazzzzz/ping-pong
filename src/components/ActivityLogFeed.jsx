@@ -12,11 +12,11 @@ export default function ActivityLogFeed({ logs = [], onRefresh, isRefreshing }) 
   };
 
   return (
-    <div className="glass-card-luxury p-5 rounded-2xl flex flex-col justify-between h-full">
+    <div className="obsidian-card p-5 rounded-2xl flex flex-col justify-between h-full">
       <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-cyan-400" />
-          <h4 className="text-[11px] font-bold uppercase tracking-widest text-slate-300">Live Telemetry Log Stream</h4>
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Live Telemetry Stream</h4>
         </div>
         <Button
           variant="ghost"
@@ -32,16 +32,16 @@ export default function ActivityLogFeed({ logs = [], onRefresh, isRefreshing }) 
 
       <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
         {logs.length === 0 ? (
-          <p className="text-xs text-slate-500 text-center py-6">No ping activity recorded yet.</p>
+          <p className="text-xs text-slate-500 text-center py-6 font-mono">No ping activity recorded yet.</p>
         ) : (
           logs.slice(0, 10).map((log, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/70 border border-white/5 text-xs hover:border-white/10 transition-all"
+              className="flex items-center justify-between p-2.5 rounded-xl bg-[#05070d]/80 border border-white/5 text-xs hover:border-white/10 transition-all font-mono"
             >
               <div className="flex items-center gap-2 overflow-hidden">
                 {getLogIcon(log.status)}
-                <span className="font-semibold text-white truncate max-w-[120px]">{log.targetName || 'Target'}</span>
+                <span className="font-semibold text-white truncate max-w-[120px] font-sans">{log.targetName || 'Target'}</span>
                 <Badge
                   variant={log.status >= 200 && log.status < 300 ? 'online' : 'offline'}
                   className="px-1.5 py-0 text-[10px] font-mono"
@@ -49,7 +49,7 @@ export default function ActivityLogFeed({ logs = [], onRefresh, isRefreshing }) 
                   {log.status}
                 </Badge>
               </div>
-              <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+              <div className="flex items-center gap-2 text-[10px] text-slate-400">
                 <span className="text-cyan-300 font-bold">{log.latency}ms</span>
                 <span>{formatRelativeTime(log.timestamp)}</span>
               </div>

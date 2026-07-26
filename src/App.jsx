@@ -176,22 +176,22 @@ export default function App() {
       : 0;
 
   const categories = [
-    { id: 'all', label: 'All Endpoints', count: monitors.length },
+    { id: 'all', label: 'All Targets', count: monitors.length },
     { id: 'database', label: 'Databases', count: monitors.filter((m) => m.type === 'database').length },
     { id: 'api', label: 'APIs & Services', count: monitors.filter((m) => m.type === 'api').length },
     { id: 'web', label: 'Web Apps', count: monitors.filter((m) => m.type === 'web').length },
   ];
 
   return (
-    <div className="relative min-h-screen w-full font-sans text-slate-100 bg-slate-950 selection:bg-cyan-500 selection:text-black overflow-x-hidden">
+    <div className="relative min-h-screen w-full font-sans text-slate-100 bg-[#05070d] bg-mesh-radial selection:bg-cyan-500 selection:text-black overflow-x-hidden">
       {/* Background Image with Dark Vignette */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
         <img
           src={wallpaper}
           alt="Backdrop Scenery"
-          className="w-full h-full object-cover filter brightness-[0.5] saturate-[1.1] transition-all duration-700"
+          className="w-full h-full object-cover filter brightness-[0.4] saturate-[1.2] transition-all duration-700"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/80 to-slate-950/95" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#05070d]/80 via-[#05070d]/90 to-[#05070d]" />
       </div>
 
       {/* Main Glass Workspace */}
@@ -218,15 +218,15 @@ export default function App() {
             {/* Left 8 Columns */}
             <div className="lg:col-span-8 space-y-4">
               {/* Category Filter Tabs Bar */}
-              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl bg-slate-950/70 backdrop-blur-2xl border border-white/10">
+              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl bg-[#090d16]/80 backdrop-blur-2xl border border-white/10">
                 <div className="flex items-center gap-1 overflow-x-auto">
                   {categories.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setActiveCategory(cat.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 ${
+                      className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 ${
                         activeCategory === cat.id
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 font-semibold shadow-sm'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 font-bold shadow-md shadow-cyan-500/20'
                           : 'text-slate-400 hover:text-white hover:bg-white/5'
                       }`}
                     >
@@ -242,10 +242,10 @@ export default function App() {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsAddModalOpen(true)}
-                  className="h-7 text-xs border-dashed border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10"
+                  className="h-8 text-xs border-dashed border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10 font-mono"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" />
-                  <span>Add Target</span>
+                  <span>New Target</span>
                 </Button>
               </div>
 
@@ -291,8 +291,8 @@ export default function App() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-xs text-slate-500 font-medium py-4 border-t border-white/5">
-          PingPulse Keep-Alive Engine • High Performance Glassmorphic Uptime Dashboard
+        <footer className="mt-12 text-center text-xs text-slate-500 font-mono py-4 border-t border-white/5">
+          PingPulse ⚡ Keep-Alive Engine • Raycast/Vercel Obsidian Theme
         </footer>
       </div>
 
