@@ -25,85 +25,68 @@
     --ring: 224 71.4% 4.1%;
   }
 
-  .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
-  }
-}
-
-@layer base {
   body {
     @apply font-sans antialiased;
-    color: hsl(var(--foreground));
-    background-color: hsl(var(--background));
+    color: #09090b;
+    background-color: #b6beb6; /* Premium Sage Green */
   }
 }
 
-/* VisionOS Glass System */
+/* Premium Bento Design System */
 .glass-panel {
-  @apply bg-slate-950/40 backdrop-blur-[40px] border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)];
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  @apply bg-white border border-black/[0.04] shadow-[0_12px_40px_rgba(0,0,0,0.03)] rounded-[32px];
 }
 
 .glass-card {
-  @apply bg-white/[0.06] backdrop-blur-[24px] border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-all duration-300;
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  @apply bg-white border border-black/[0.04] shadow-[0_6px_20px_rgba(0,0,0,0.015)] transition-all duration-300 rounded-[28px];
 }
 
 .glass-card:hover {
-  @apply bg-white/[0.1] border-white/20 transform -translate-y-[2px] shadow-[0_12px_40px_0_rgba(0,0,0,0.4)];
+  @apply bg-white border-black/[0.08] transform -translate-y-[1px] shadow-[0_12px_30px_rgba(0,0,0,0.03)];
 }
 
 .glass-button {
-  @apply bg-white/[0.08] hover:bg-white/[0.16] active:bg-white/[0.2] border border-white/10 text-white rounded-2xl transition-all duration-200 transform active:scale-95 shadow-sm;
+  @apply bg-zinc-950 hover:bg-zinc-900 active:bg-zinc-950 border border-zinc-950 text-white rounded-2xl transition-all duration-200 transform active:scale-95 shadow-sm;
 }
 
-/* Clean Status Dots & Breathing Glows */
-@keyframes breathing-glow {
+/* Apple Segmented Controls styling */
+.segmented-container {
+  @apply bg-zinc-100/80 border border-zinc-200/50 p-1 rounded-[20px] flex gap-1;
+}
+
+.segmented-btn-active {
+  @apply bg-white border border-zinc-200 text-zinc-950 font-bold shadow-[0_2px_6px_rgba(0,0,0,0.03)] rounded-[15px];
+}
+
+/* Clean Status Dots & Breathing Glows (Bento Light Style) */
+@keyframes breathing-glow-light {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 4px currentColor, 0 0 10px currentColor;
+    box-shadow: 0 0 2px currentColor, 0 0 4px currentColor;
   }
   50% {
-    transform: scale(1.15);
-    box-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+    transform: scale(1.08);
+    box-shadow: 0 0 4px currentColor, 0 0 8px currentColor;
   }
 }
 
 .status-dot {
-  @apply w-2.5 h-2.5 rounded-full relative;
+  @apply w-2 h-2 rounded-full relative;
 }
 
 .status-online {
-  @apply bg-emerald-400 text-emerald-400/80;
-  animation: breathing-glow 2s infinite ease-in-out;
+  @apply bg-emerald-500 text-emerald-500/50;
+  animation: breathing-glow-light 2.5s infinite ease-in-out;
 }
 
 .status-warning {
-  @apply bg-amber-400 text-amber-400/80;
-  animation: breathing-glow 2s infinite ease-in-out;
+  @apply bg-amber-500 text-amber-500/50;
+  animation: breathing-glow-light 2.5s infinite ease-in-out;
 }
 
 .status-offline {
-  @apply bg-rose-500 text-rose-500/80;
-  animation: breathing-glow 2s infinite ease-in-out;
+  @apply bg-rose-500 text-rose-500/50;
+  animation: breathing-glow-light 2.5s infinite ease-in-out;
 }
 
 /* Custom Scrollbar */
@@ -115,17 +98,13 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  @apply bg-zinc-300 rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  @apply bg-zinc-400;
 }
 
-/* Ambient Background Glows */
-.ambient-glow-1 {
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0) 70%);
-}
-.ambient-glow-2 {
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, rgba(236, 72, 153, 0) 70%);
+/* Background elements removed for pure bento theme */
+.ambient-glow-1, .ambient-glow-2 {
+  display: none !important;
 }

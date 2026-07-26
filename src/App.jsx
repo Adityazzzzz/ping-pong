@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
-import StatsBar from './components/StatsBar';
 import CircularGauge from './components/CircularGauge';
 import TargetCard from './components/TargetCard';
-import ActivityLogFeed from './components/ActivityLogFeed';
-import AddMonitorModal from './components/AddMonitorModal';
-import WallpaperSelector from './components/WallpaperSelector';
+import InlineAddCard from './components/InlineAddCard';
+import ProjectInspector from './components/ProjectInspector';
 import { Button } from './components/ui/button';
 
 import {
   getStoredMonitors,
   saveStoredMonitors,
-  getStoredWallpaper,
-  setStoredWallpaper,
 } from './utils/storage';
 import { Plus, LayoutGrid, Database, Server, Globe, Zap } from 'lucide-react';
 
@@ -21,10 +17,10 @@ export default function App() {
   const [monitors, setMonitors] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeMode, setActiveMode] = useState('eco');
-  const [wallpaper, setWallpaper] = useState(getStoredWallpaper());
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isWallpaperModalOpen, setIsWallpaperModalOpen] = useState(false);
+  // Workspace states
+  const [editingSlotIndex, setEditingSlotIndex] = useState(null);
+  const [selectedMonitorId, setSelectedMonitorId] = useState(null);
 
   const [pingingIds, setPingingIds] = useState([]);
   const [isPingingAll, setIsPingingAll] = useState(false);
@@ -93,6 +89,10 @@ export default function App() {
       if (res.ok) {
         const updatedTarget = await res.json();
         setMonitors((prev) => prev.map((m) => (m.id === id ? updatedTarget : m)));
+        if (selectedMonitorId === id) {
+          setSelectedMonitorId(null);
+          setTimeout(() => setSelectedMonitorId(id), 10);
+        }
       }
     } catch {
       setTimeout(() => {
@@ -123,7 +123,7 @@ export default function App() {
     }
   };
 
-  const handleAddTarget = async (newTarget) => {
+  const handleAddTargetAtIndex = async (newTarget) => {
     try {
       const res = await fetch('/api/monitors', {
         method: 'POST',
@@ -141,6 +141,8 @@ export default function App() {
       const local = [...monitors, { ...newTarget, id: Date.now().toString(), status: 'online', active: true, logs: [] }];
       setMonitors(local);
       saveStoredMonitors(local);
+    } finally {
+      setEditingSlotIndex(null);
     }
   };
 
@@ -148,17 +150,14 @@ export default function App() {
     const updated = monitors.filter((m) => m.id !== id);
     setMonitors(updated);
     saveStoredMonitors(updated);
+    if (selectedMonitorId === id) {
+      setSelectedMonitorId(null);
+    }
     try {
       await fetch(`/api/monitors/${id}`, { method: 'DELETE' });
     } catch (e) {
       console.warn('API delete fallback', e);
     }
-  };
-
-  const handleSelectWallpaper = (url) => {
-    setWallpaper(url);
-    setStoredWallpaper(url);
-    setIsWallpaperModalOpen(false);
   };
 
   // Calculations
@@ -182,75 +181,85 @@ export default function App() {
     { id: 'web', label: 'Web Apps', count: monitors.filter((m) => m.type === 'web').length, icon: Globe },
   ];
 
+  const totalSlotsCount = 10;
+  const slots = Array.from({ length: totalSlotsCount }).map((_, index) => {
+    const monitor = filteredMonitors[index];
+    return {
+      index,
+      monitor,
+      isConfigured: !!monitor,
+    };
+  });
+
+  const handleOpenAddInline = () => {
+    const firstEmptyIndex = slots.findIndex((s) => !s.isConfigured);
+    if (firstEmptyIndex !== -1) {
+      setEditingSlotIndex(firstEmptyIndex);
+    }
+  };
+
+  const selectedMonitor = monitors.find((m) => m.id === selectedMonitorId);
+
   return (
-    <div className="relative min-h-screen w-full bg-[#05070d] overflow-hidden flex items-center justify-center font-sans">
-      {/* Background Image with dim and blur filters */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <img
-          src={wallpaper}
-          alt="Backdrop Scenery"
-          className="w-full h-full object-cover filter brightness-[0.7] saturate-[1.1] transition-all duration-700"
-        />
-        <div className="absolute inset-0 bg-[#05070d]/50 backdrop-blur-[20px]" />
-      </div>
-
-      {/* Decorative Ambient Color Glow Spheres for depth (macOS/Linear vibe) */}
-      <div className="absolute top-[20%] left-[20%] w-[35rem] h-[35rem] rounded-full ambient-glow-1 blur-[120px] pointer-events-none z-0 opacity-40 animate-pulse" />
-      <div className="absolute bottom-[20%] right-[20%] w-[30rem] h-[30rem] rounded-full ambient-glow-2 blur-[100px] pointer-events-none z-0 opacity-30 animate-pulse" />
-
-      {/* Main Glass Workspace Window */}
-      <div className="relative z-10 w-full max-w-[1550px] h-[92vh] mx-4 md:mx-8 glass-panel rounded-[32px] overflow-hidden flex flex-col md:flex-row shadow-[0_35px_80px_rgba(0,0,0,0.6)] border border-white/10">
+    <div className="relative min-h-screen w-full bg-[#b6beb6] flex items-center justify-center p-6 md:p-8 font-sans overflow-x-hidden">
+      
+      {/* Floating Bento layout configuration */}
+      <div className="w-full max-w-[1550px] flex flex-col lg:flex-row gap-6 items-stretch">
         
-        {/* SIDEBAR: Category navigation and circular dial */}
-        <aside className="w-full md:w-[320px] flex flex-col justify-between border-r border-white/10 p-6 bg-white/[0.01] backdrop-blur-md shrink-0">
-          <div className="space-y-8">
-            {/* Branding Identity */}
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-9 h-9 rounded-xl bg-white/10 p-[1px] border border-white/20 shadow-sm flex items-center justify-center">
+        {/* SIDEBAR COLUMN (Independent Floating Bento Cards) */}
+        <aside className="w-full lg:w-[320px] flex flex-col gap-6 shrink-0 justify-start">
+          
+          {/* Card 1: Branding Identity (High Contrast Bento) */}
+          <div className="bg-zinc-950 text-white rounded-[28px] p-5 shadow-[0_12px_40px_rgba(0,0,0,0.05)] border border-zinc-900 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-white/10 p-[1px] border border-white/20 flex items-center justify-center shadow-sm">
                 <Zap className="w-5 h-5 text-white animate-pulse" />
               </div>
               <div>
-                <h1 className="text-xl font-bold tracking-tight text-white font-sans flex items-center gap-2">
+                <h1 className="text-2xl font-black font-display tracking-tight text-white flex items-center gap-1">
                   PingPulse
-                  <span className="text-[9px] font-mono tracking-widest bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 px-1.5 py-0.5 rounded font-bold">1.0</span>
+                  <span className="text-[9px] font-mono tracking-widest bg-white/10 text-white border border-white/20 px-1.5 py-0.5 rounded font-bold">1.0</span>
                 </h1>
-                <p className="text-[10px] text-white/40 uppercase tracking-widest font-semibold mt-0.5">Uptime Control</p>
+                <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold font-display mt-0.5">Uptime Control</p>
               </div>
-            </div>
-
-            {/* Sidebar Search/Selector Categories */}
-            <div className="space-y-2">
-              <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-2">MONITORING CLASSIFICATION</span>
-              <nav className="space-y-1">
-                {categories.map((cat) => {
-                  const CatIcon = cat.icon;
-                  const isActive = activeCategory === cat.id;
-                  return (
-                    <button
-                      key={cat.id}
-                      onClick={() => setActiveCategory(cat.id)}
-                      className={`w-full px-4 py-3 rounded-2xl text-sm font-medium transition-all flex items-center justify-between group ${
-                        isActive
-                          ? 'bg-white/10 text-white shadow-sm border border-white/5'
-                          : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <CatIcon className={`w-4.5 h-4.5 transition-transform group-hover:scale-105 ${isActive ? 'text-white' : 'text-white/40'}`} />
-                        <span>{cat.label}</span>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${isActive ? 'bg-white/10 text-white' : 'bg-white/5 text-white/40'}`}>
-                        {cat.count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </nav>
             </div>
           </div>
 
-          {/* Embedded Speedometer Ring Gauge Dial */}
-          <div className="mt-8">
+          {/* Card 2: Sidebar classification navigation */}
+          <div className="bg-white rounded-[28px] border border-black/[0.04] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.015)] space-y-3">
+            <span className="text-[10px] font-extrabold font-display text-zinc-400 uppercase tracking-widest px-2 block">MONITORING CLASSIFICATION</span>
+            <nav className="space-y-1.5">
+              {categories.map((cat) => {
+                const CatIcon = cat.icon;
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setActiveCategory(cat.id);
+                      setSelectedMonitorId(null);
+                    }}
+                    className={`w-full px-4 py-3 rounded-2xl text-sm font-semibold transition-all flex items-center justify-between group ${
+                      isActive
+                        ? 'bg-zinc-100 text-zinc-950 shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-zinc-200'
+                        : 'text-zinc-550 hover:text-zinc-900 hover:bg-zinc-100/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <CatIcon className={`w-4.5 h-4.5 transition-transform group-hover:scale-105 ${isActive ? 'text-zinc-950' : 'text-zinc-450'}`} />
+                      <span className="font-display font-bold">{cat.label}</span>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${isActive ? 'bg-zinc-950 text-white' : 'bg-zinc-200 text-zinc-500'}`}>
+                      {cat.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Card 3: Embedded Gauge Dial */}
+          <div className="bg-white rounded-[28px] border border-black/[0.04] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.015)]">
             <CircularGauge
               healthScore={healthScore}
               activeMode={activeMode}
@@ -260,95 +269,92 @@ export default function App() {
         </aside>
 
         {/* MAIN PANEL CONTENT CANVAS */}
-        <main className="flex-1 min-w-0 flex flex-col h-full bg-black/10">
+        <div className="flex-1 min-w-0 flex flex-col md:flex-row gap-6">
           
-          {/* TOP HEADER STATUS BAR */}
-          <Header
-            onPingAll={handlePingAllNow}
-            isPingingAll={isPingingAll}
-            onOpenAddModal={() => setIsAddModalOpen(true)}
-            onOpenWallpaperModal={() => setIsWallpaperModalOpen(true)}
-            totalCount={totalCount}
-            activeCount={activeCount}
-            avgLatency={avgLatency}
-            healthScore={healthScore}
-          />
-
-          {/* CANVAS WORKSPACE (SCROLLABLE GRID & FEED) */}
-          <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 custom-scrollbar">
-            
-            {/* Targets Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-white/40">Target Nodes ({filteredMonitors.length})</h2>
-                <div className="h-[1px] flex-1 bg-white/5 mx-4" />
-              </div>
-
-              {filteredMonitors.length === 0 ? (
-                <div className="glass-card p-12 text-center rounded-3xl border border-white/5">
-                  <p className="text-white/40 text-sm">No targets configured for this category.</p>
-                  <Button
-                    onClick={() => setIsAddModalOpen(true)}
-                    className="glass-button mt-4 h-9 px-4 text-xs font-semibold"
-                  >
-                    Configure First Target
-                  </Button>
-                </div>
-              ) : (
-                <motion.div layout className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                  <AnimatePresence mode="popLayout">
-                    {filteredMonitors.map((monitor) => (
-                      <motion.div
-                        key={monitor.id}
-                        layout
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.25, ease: 'easeOut' }}
-                      >
-                        <TargetCard
-                          monitor={monitor}
-                          onToggleActive={handleToggleActive}
-                          onPingNow={handlePingSingle}
-                          onDelete={handleDeleteTarget}
-                          isPinging={pingingIds.includes(monitor.id)}
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Bottom Section: Wide Telemetry stream */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-white/40">Live Logs</h2>
-                <div className="h-[1px] flex-1 bg-white/5 mx-4" />
-              </div>
-              <ActivityLogFeed
-                logs={recentLogs}
-                onRefresh={handlePingAllNow}
-                isRefreshing={isPingingAll}
+          <main className="flex-1 min-w-0 flex flex-col gap-6">
+            {/* TOP HEADER STATUS BAR (Floating Capsule Card) */}
+            <div className="bg-white rounded-[28px] border border-black/[0.04] shadow-[0_8px_30px_rgba(0,0,0,0.015)] overflow-hidden shrink-0">
+              <Header
+                onPingAll={handlePingAllNow}
+                isPingingAll={isPingingAll}
+                onOpenAddModal={handleOpenAddInline}
+                totalCount={totalCount}
+                activeCount={activeCount}
+                avgLatency={avgLatency}
+                healthScore={healthScore}
               />
             </div>
-          </div>
-        </main>
+
+            {/* CANVAS WORKSPACE (NATIVE FLOATING TARGET CARDS) */}
+            <div className="flex-1 overflow-y-auto max-h-[82vh] pr-1 custom-scrollbar">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-[11px] font-extrabold font-display uppercase tracking-wider text-zinc-900">Workstation Workspace Nodes (10 max)</h2>
+                  <div className="h-[1px] flex-1 bg-zinc-900/10 mx-4" />
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                  {slots.map((slot) => {
+                    if (slot.isConfigured) {
+                      return (
+                        <TargetCard
+                          key={slot.monitor.id}
+                          monitor={slot.monitor}
+                          isSelected={selectedMonitorId === slot.monitor.id}
+                          onToggleActive={handleToggleActive}
+                          onClick={() => setSelectedMonitorId(slot.monitor.id)}
+                        />
+                      );
+                    }
+
+                    if (editingSlotIndex === slot.index) {
+                      return (
+                        <InlineAddCard
+                          key={`editing-${slot.index}`}
+                          onAddTarget={handleAddTargetAtIndex}
+                          onCancel={() => setEditingSlotIndex(null)}
+                        />
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={`empty-${slot.index}`}
+                        onClick={() => setEditingSlotIndex(slot.index)}
+                        className="glass-card p-4 sm:p-5 rounded-[28px] border border-dashed border-zinc-400 hover:border-zinc-800 flex flex-col items-center justify-center gap-2.5 min-h-[160px] transition-all hover:bg-white cursor-pointer group"
+                      >
+                        <div className="w-9 h-9 rounded-full border border-dashed border-zinc-400 flex items-center justify-center text-zinc-500 group-hover:text-zinc-900 group-hover:border-zinc-700 transition-colors">
+                          <Plus className="w-4.5 h-4.5 transition-transform group-hover:scale-105" />
+                        </div>
+                        <div className="text-center select-none font-display">
+                          <span className="text-xs font-bold text-zinc-650 block group-hover:text-zinc-900 transition-colors">Available Keep-Alive Slot</span>
+                          <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-extrabold block mt-0.5">Click to configure target</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </main>
+
+          {/* PROJECT DETAIL INSPECTOR PANEL (Floating Bento Block) */}
+          <AnimatePresence>
+            {selectedMonitor && (
+              <div className="bg-white rounded-[28px] border border-black/[0.04] shadow-[0_12px_40px_rgba(0,0,0,0.03)] overflow-hidden shrink-0 flex flex-col h-full self-start">
+                <ProjectInspector
+                  monitor={selectedMonitor}
+                  onPingNow={handlePingSingle}
+                  onDelete={handleDeleteTarget}
+                  isPinging={pingingIds.includes(selectedMonitor.id)}
+                  onClose={() => setSelectedMonitorId(null)}
+                />
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+
       </div>
-
-      {/* Modals */}
-      <AddMonitorModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAddTarget={handleAddTarget}
-      />
-
-      <WallpaperSelector
-        isOpen={isWallpaperModalOpen}
-        onClose={() => setIsWallpaperModalOpen(false)}
-        currentWallpaper={wallpaper}
-        onSelectWallpaper={handleSelectWallpaper}
-      />
     </div>
   );
 }
