@@ -1,17 +1,22 @@
 import React from 'react';
-import { X, Image, Check } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from './ui/dialog';
+import { Image, Check } from 'lucide-react';
 
 export default function WallpaperSelector({ isOpen, onClose, currentWallpaper, onSelectWallpaper }) {
-  if (!isOpen) return null;
-
   const presetWallpapers = [
     {
-      name: 'Moody Mountain Lake',
+      name: 'Moody Snow Peak Lake',
       url: '/scenery_landscape.jpg',
       thumb: '/scenery_landscape.jpg',
     },
     {
-      name: 'Cyberpunk Neon City',
+      name: 'Cyberpunk Neon Horizon',
       url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1600&auto=format&fit=crop',
       thumb: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=300&auto=format&fit=crop',
     },
@@ -21,33 +26,30 @@ export default function WallpaperSelector({ isOpen, onClose, currentWallpaper, o
       thumb: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=300&auto=format&fit=crop',
     },
     {
-      name: 'Deep Space Nebula',
+      name: 'Deep Space Aurora',
       url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop',
       thumb: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=300&auto=format&fit=crop',
     },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-fade-in">
-      <div className="glass-panel w-full max-w-2xl p-6 rounded-3xl border border-white/15 shadow-2xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-400/30">
-            <Image className="w-5 h-5" />
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-400/30">
+              <Image className="w-5 h-5" />
+            </div>
+            <div>
+              <DialogTitle>Select Scenery Backdrop</DialogTitle>
+              <DialogDescription>
+                Customize the glassmorphic wallpaper atmosphere
+              </DialogDescription>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-extrabold text-white">Select Background Scenery Wallpaper</h3>
-            <p className="text-xs text-slate-400">Customize the visual backdrop for your VisionOS glass dashboard</p>
-          </div>
-        </div>
+        </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-4 my-4">
+        <div className="grid grid-cols-2 gap-4 my-2">
           {presetWallpapers.map((wp) => {
             const isSelected = currentWallpaper === wp.url;
             return (
@@ -58,7 +60,11 @@ export default function WallpaperSelector({ isOpen, onClose, currentWallpaper, o
                   isSelected ? 'border-cyan-400 scale-[1.02] shadow-xl shadow-cyan-500/20' : 'border-white/10 hover:border-white/30'
                 }`}
               >
-                <img src={wp.thumb} alt={wp.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+                <img
+                  src={wp.thumb}
+                  alt={wp.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent p-3 flex flex-col justify-end">
                   <span className="text-xs font-bold text-white">{wp.name}</span>
                 </div>
@@ -71,7 +77,7 @@ export default function WallpaperSelector({ isOpen, onClose, currentWallpaper, o
             );
           })}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

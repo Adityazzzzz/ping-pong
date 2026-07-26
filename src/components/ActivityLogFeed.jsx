@@ -1,6 +1,9 @@
 import React from 'react';
+import { Card } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import { Activity, CheckCircle2, AlertTriangle, XCircle, RefreshCw } from 'lucide-react';
-import { formatRelativeTime } from '../utils/formatters';
+import { formatRelativeTime } from '../lib/utils';
 
 export default function ActivityLogFeed({ logs = [], onRefresh, isRefreshing }) {
   const getLogIcon = (status) => {
@@ -10,46 +13,51 @@ export default function ActivityLogFeed({ logs = [], onRefresh, isRefreshing }) 
   };
 
   return (
-    <div className="glass-card p-5 rounded-2xl flex flex-col justify-between">
+    <Card className="flex flex-col justify-between p-5 h-full">
       <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-cyan-400" />
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Live Activity Log</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Live Ping Telemetry Feed</h4>
         </div>
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"
+          className="h-7 w-7 rounded-lg text-slate-400 hover:text-white"
           title="Refresh Logs"
         >
-          <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-        </button>
+          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
+        </Button>
       </div>
 
-      <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+      <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
         {logs.length === 0 ? (
-          <p className="text-xs text-slate-500 text-center py-4">No recent pings logged.</p>
+          <p className="text-xs text-slate-500 text-center py-6">No ping activity recorded yet.</p>
         ) : (
-          logs.slice(0, 8).map((log, idx) => (
+          logs.slice(0, 10).map((log, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-2 rounded-xl bg-slate-900/40 border border-white/5 text-xs hover:border-white/10 transition-all"
+              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/60 border border-white/5 text-xs hover:border-white/15 transition-all"
             >
               <div className="flex items-center gap-2 overflow-hidden">
                 {getLogIcon(log.status)}
-                <span className="font-semibold text-white truncate max-w-[120px]">{log.targetName || 'Target'}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-slate-400 font-mono">
+                <span className="font-semibold text-white truncate max-w-[130px]">{log.targetName || 'Target'}</span>
+                <Badge
+                  variant={log.status >= 200 && log.status < 300 ? 'online' : 'offline'}
+                  className="px-1.5 py-0 text-[10px]"
+                >
                   {log.status}
-                </span>
+                </Badge>
               </div>
-              <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                <span className="font-mono text-cyan-300">{log.latency}ms</span>
+              <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+                <span className="text-cyan-300 font-bold">{log.latency}ms</span>
                 <span>{formatRelativeTime(log.timestamp)}</span>
               </div>
             </div>
           ))
         )}
       </div>
-    </div>
+    </Card>
   );
 }
