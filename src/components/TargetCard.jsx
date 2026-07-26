@@ -4,8 +4,9 @@ import { Badge } from './ui/badge';
 import { Database, Server, Globe, Copy, Check, Info } from 'lucide-react';
 import { formatRelativeTime, getLatencyBadge } from '../lib/utils';
 
-export default function TargetCard({ monitor, onToggleActive, onClick, isSelected }) {
+export default function TargetCard({ monitor, onToggleActive, onClick, isSelected, onShowToast }) {
   const [copied, setCopied] = useState(false);
+  const [hoveredTick, setHoveredTick] = useState(null);
 
   const providerIcons = {
     database: Database,
@@ -20,6 +21,7 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
     e.stopPropagation(); // Avoid selecting the card when copying URL
     navigator.clipboard.writeText(monitor.url);
     setCopied(true);
+    if (onShowToast) onShowToast('Endpoint URL copied to clipboard');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -42,6 +44,11 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
     }
     return 'bg-emerald-50 text-emerald-700 border-emerald-200/50';
   };
+
+  // Determine dynamic stats display based on hover interaction
+  const displayedLatency = hoveredTick ? hoveredTick.latency : monitor.latency;
+  const displayedTime = hoveredTick ? hoveredTick.timestamp : monitor.lastPing;
+  const isViewingHistory = hoveredTick !== null;
 
   return (
     <div 
@@ -79,7 +86,7 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
         </div>
       </div>
 
-      {/* URL Endpoint Bar (macOS address bar style) */}
+      {/* URL Endpoint Bar */}
       <div 
         onClick={handleCopyUrl}
         className="bg-zinc-50 hover:bg-zinc-100/80 px-3.5 py-2.5 rounded-xl border border-zinc-200 flex items-center justify-between gap-2.5 my-2.5 transition-all duration-200 cursor-pointer"
@@ -96,7 +103,7 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
         </button>
       </div>
 
-      {/* Latency Wave History (Compact Audio visualizer style) */}
+      {/* Latency Wave History (Interactive Hover Chart) */}
       <div className="my-2">
         <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-2 font-mono">
           <span className="font-bold tracking-wider">LATENCY HISTOGRAM</span>
@@ -126,22 +133,30 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
             return (
               <div
                 key={idx}
+                onMouseEnter={() => setHoveredTick(tick)}
+                onMouseLeave={() => setHoveredTick(null)}
                 title={`${tick.status} - ${tick.latency}ms (${formatRelativeTime(tick.timestamp)})`}
                 style={{ height: `${heightPercent}%` }}
-                className={`w-[6px] rounded-full transition-all duration-300 cursor-pointer ${colorClass}`}
+                className={`w-[6px] rounded-full transition-all duration-300 cursor-pointer ${colorClass} ${
+                  hoveredTick && hoveredTick.timestamp === tick.timestamp ? 'scale-y-[1.1] ring-1 ring-zinc-950/20' : ''
+                }`}
               />
             );
           })}
         </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Metrics Row (Updates dynamically on hover) */}
       <div className="pt-3 border-t border-zinc-200/60 flex items-center justify-between mt-2.5">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className={`text-xs font-mono px-2 py-0.5 border-zinc-200 text-zinc-650 bg-zinc-50 ${getLatencyBadge(monitor.latency)}`}>
-            {monitor.latency > 0 ? `${monitor.latency} ms` : '--'}
+          <Badge variant="outline" className={`text-xs font-mono px-2 py-0.5 border-zinc-200 text-zinc-650 bg-zinc-50 transition-all ${
+            isViewingHistory ? 'bg-zinc-950 text-white border-zinc-950 shadow-sm' : getLatencyBadge(displayedLatency)
+          }`}>
+            {displayedLatency > 0 ? `${displayedLatency} ms` : '--'}
           </Badge>
-          <span className="text-xs text-zinc-500 font-medium">{formatRelativeTime(monitor.lastPing)}</span>
+          <span className={`text-xs transition-all font-medium ${isViewingHistory ? 'text-zinc-950 font-bold' : 'text-zinc-500'}`}>
+            {isViewingHistory ? `Historical: ${formatRelativeTime(displayedTime)}` : formatRelativeTime(displayedTime)}
+          </span>
         </div>
 
         <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider flex items-center gap-1 group-hover:text-zinc-700 transition-colors">
