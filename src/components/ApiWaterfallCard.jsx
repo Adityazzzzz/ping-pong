@@ -1,20 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePerformanceObserver } from '../hooks/usePerformanceObserver';
-import { Activity, ChevronDown, ChevronUp } from 'lucide-react';
+import { Activity, ChevronDown, ChevronUp, Cpu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ApiWaterfallCard() {
   const logs = usePerformanceObserver(5);
   const [expandedLogId, setExpandedLogId] = useState(null);
+  const [memoryStats, setMemoryStats] = useState(null);
+
+  // Monitor JS heap memory stats if supported by browser
+  useEffect(() => {
+    const updateMemory = () => {
+      if (typeof window !== 'undefined' && window.performance && window.performance.memory) {
+        const { usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit } = window.performance.memory;
+        setMemoryStats({
+          used: usedJSHeapSize,
+          total: totalJSHeapSize,
+          limit: jsHeapSizeLimit,
+          percent: (usedJSHeapSize / jsHeapSizeLimit) * 100,
+        });
+      }
+    };
+
+    updateMemory();
+    const interval = setInterval(updateMemory, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleExpand = (id) => {
     setExpandedLogId(expandedLogId === id ? null : id);
   };
 
   const formatSize = (bytes) => {
-    if (bytes === 0) return '0 B';
+    if (!bytes || bytes === 0) return '0 B';
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB'];
+    const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
@@ -35,6 +55,7 @@ export default function ApiWaterfallCard() {
         </span>
       </div>
 
+      {/* Network Logs List */}
       {logs.length === 0 ? (
         <div className="text-center py-6 text-[10px] text-zinc-400 font-mono">
           Waiting for API requests...
@@ -62,13 +83,13 @@ export default function ApiWaterfallCard() {
                   className="flex items-center justify-between cursor-pointer group"
                 >
                   <div className="min-w-0 flex-1 pr-2">
-                    <span className="text-xs font-mono font-bold text-zinc-700 truncate block group-hover:text-zinc-950 transition-colors">
+                    <span className="text-xs font-mono font-bold text-zinc-700 truncate block group-hover:text-zinc-955 transition-colors">
                       {log.name}
                     </span>
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-mono font-bold text-zinc-850 bg-zinc-50 px-1.5 py-0.5 rounded border border-zinc-200">
+                    <span className="text-[11px] font-mono font-bold text-zinc-855 bg-zinc-50 px-1.5 py-0.5 rounded border border-zinc-200">
                       {log.duration}ms
                     </span>
                     {isExpanded ? (
@@ -127,7 +148,7 @@ export default function ApiWaterfallCard() {
                           <span className="w-2 h-2 rounded-full bg-cyan-500" />
                           <span>DNS Resolution</span>
                         </div>
-                        <span className="font-mono text-zinc-800 font-semibold">{log.dns} ms</span>
+                        <span className="font-mono text-zinc-850 font-semibold">{log.dns} ms</span>
                       </div>
 
                       <div className="flex justify-between items-center">
@@ -135,7 +156,7 @@ export default function ApiWaterfallCard() {
                           <span className="w-2 h-2 rounded-full bg-amber-500" />
                           <span>TCP Connection</span>
                         </div>
-                        <span className="font-mono text-zinc-800 font-semibold">{log.connect} ms</span>
+                        <span className="font-mono text-zinc-850 font-semibold">{log.connect} ms</span>
                       </div>
 
                       <div className="flex justify-between items-center">
@@ -143,7 +164,7 @@ export default function ApiWaterfallCard() {
                           <span className="w-2 h-2 rounded-full bg-purple-500" />
                           <span>Wait Time (TTFB)</span>
                         </div>
-                        <span className="font-mono text-zinc-800 font-semibold">{log.ttfb} ms</span>
+                        <span className="font-mono text-zinc-855 font-semibold">{log.ttfb} ms</span>
                       </div>
 
                       <div className="flex justify-between items-center">
@@ -151,7 +172,7 @@ export default function ApiWaterfallCard() {
                           <span className="w-2 h-2 rounded-full bg-emerald-500" />
                           <span>Download Latency</span>
                         </div>
-                        <span className="font-mono text-zinc-800 font-semibold">{log.download} ms</span>
+                        <span className="font-mono text-zinc-850 font-semibold">{log.download} ms</span>
                       </div>
 
                       <div className="flex justify-between items-center pt-2 border-t border-zinc-200/60 text-zinc-500 font-extrabold uppercase tracking-wider">
@@ -166,6 +187,29 @@ export default function ApiWaterfallCard() {
           })}
         </div>
       )}
+
+      {/* Heap Memory Footprint Card Footer Section */}
+      {memoryStats && (
+        <div className="pt-3 border-t border-zinc-150 space-y-2 mt-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-extrabold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+              <Cpu className="w-3.5 h-3.5 text-purple-600" /> Active Heap Memory
+            </span>
+            <span className="text-[10px] font-mono font-bold text-zinc-700">
+              {formatSize(memoryStats.used)} / {formatSize(memoryStats.limit)}
+            </span>
+          </div>
+
+          <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden shadow-inner">
+            <div 
+              style={{ width: `${memoryStats.percent}%` }}
+              className="bg-purple-500 h-full transition-all duration-500"
+              title={`Memory Footprint: ${(memoryStats.percent).toFixed(2)}% used`}
+            />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
