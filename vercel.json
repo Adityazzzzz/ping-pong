@@ -6,28 +6,15 @@
   "crons": [
     {
       "path": "/api/ping-all",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 */6 * * *"
     }
   ],
-  "routes": [
-    {
-      "src": "/api/health",
-      "dest": "/api/health.js"
-    },
-    {
-      "src": "/api/ping-all",
-      "dest": "/api/ping-all.js"
-    },
-    {
-      "src": "/api/monitors(.*)",
-      "dest": "/api/monitors.js"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/api/ping-all", "destination": "/api/ping-all.js" },
+    { "source": "/api/health", "destination": "/api/health.js" },
+    { "source": "/api/monitors", "destination": "/api/monitors/index.js" },
+    { "source": "/api/monitors/:id", "destination": "/api/monitors/[id].js" },
+    { "source": "/api/ping/:id", "destination": "/api/ping/[id].js" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

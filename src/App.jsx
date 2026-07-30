@@ -5,7 +5,6 @@ import CircularGauge from './components/CircularGauge';
 import TargetCard from './components/TargetCard';
 import InlineAddCard from './components/InlineAddCard';
 import ProjectInspector from './components/ProjectInspector';
-import { Button } from './components/ui/button';
 
 import {
   getStoredMonitors,
@@ -27,7 +26,6 @@ export default function App() {
 
   const [pingingIds, setPingingIds] = useState([]);
   const [isPingingAll, setIsPingingAll] = useState(false);
-  const [recentLogs, setRecentLogs] = useState([]);
 
   useEffect(() => {
     fetchMonitors();
@@ -57,30 +55,14 @@ export default function App() {
         const data = await res.json();
         setMonitors(data);
         saveStoredMonitors(data);
-        extractRecentLogs(data);
       } else {
         const local = getStoredMonitors();
         setMonitors(local);
-        extractRecentLogs(local);
       }
     } catch {
       const local = getStoredMonitors();
       setMonitors(local);
-      extractRecentLogs(local);
     }
-  };
-
-  const extractRecentLogs = (monitorList) => {
-    const logs = [];
-    monitorList.forEach((m) => {
-      if (m.logs && m.logs.length > 0) {
-        m.logs.forEach((log) => {
-          logs.push({ ...log, targetName: m.name });
-        });
-      }
-    });
-    logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    setRecentLogs(logs);
   };
 
   const handleToggleActive = async (id) => {
