@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePerformanceObserver } from '../hooks/usePerformanceObserver';
-import { Activity, ChevronDown, ChevronUp, Cpu, Info } from 'lucide-react';
+import { Activity, ChevronDown, ChevronUp, Cpu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ApiWaterfallCard() {
@@ -101,29 +101,29 @@ export default function ApiWaterfallCard() {
                 </div>
 
                 {/* Inline Mini-Waterfall Bar */}
-                <div className="h-1.5 w-full bg-zinc-100/80 rounded-full overflow-hidden flex mt-2 shadow-inner">
+                <div className="h-1.5 w-full bg-zinc-100/80 rounded-full overflow-hidden flex mt-2 shadow-inner group-hover:h-2 transition-all duration-300">
                   {log.dns > 0 && (
                     <div 
                       style={{ width: `${dnsPercent}%` }} 
-                      className="bg-cyan-500 h-full transition-all duration-300"
+                      className="bg-cyan-500 h-full transition-all duration-300 hover:brightness-110 cursor-pointer"
                       title={`DNS: ${log.dns}ms`}
                     />
                   )}
                   {log.connect > 0 && (
                     <div 
                       style={{ width: `${connectPercent}%` }} 
-                      className="bg-amber-500 h-full transition-all duration-300"
+                      className="bg-amber-500 h-full transition-all duration-300 hover:brightness-110 cursor-pointer"
                       title={`Connect: ${log.connect}ms`}
                     />
                   )}
                   <div 
                     style={{ width: `${ttfbPercent}%` }} 
-                    className="bg-purple-500 h-full transition-all duration-300"
+                    className="bg-purple-500 h-full transition-all duration-300 hover:brightness-110 cursor-pointer"
                     title={`Waiting (TTFB): ${log.ttfb}ms`}
                   />
                   <div 
                     style={{ width: `${downloadPercent}%` }} 
-                    className="bg-emerald-500 h-full transition-all duration-300"
+                    className="bg-emerald-500 h-full transition-all duration-300 hover:brightness-110 cursor-pointer"
                     title={`Download: ${log.download}ms`}
                   />
                 </div>
