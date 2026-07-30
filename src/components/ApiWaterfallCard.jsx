@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePerformanceObserver } from '../hooks/usePerformanceObserver';
-import { Activity, ChevronDown, ChevronUp, Cpu } from 'lucide-react';
+import { Activity, ChevronDown, ChevronUp, Cpu, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ApiWaterfallCard() {
@@ -185,6 +185,28 @@ export default function ApiWaterfallCard() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Color-coded Legend Row */}
+      {logs.length > 0 && (
+        <div className="flex items-center justify-between text-[8px] font-extrabold tracking-wider text-zinc-455 pt-2.5 border-t border-zinc-100 uppercase">
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+            <span>DNS</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span>Conn</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+            <span>Wait (TTFB)</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>Down</span>
+          </div>
         </div>
       )}
 
