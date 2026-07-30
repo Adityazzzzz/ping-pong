@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { usePerformanceObserver } from '../hooks/usePerformanceObserver';
-import { Activity, ChevronDown, ChevronUp, Database } from 'lucide-react';
+import { Activity, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ApiWaterfallCard() {
@@ -106,6 +106,61 @@ export default function ApiWaterfallCard() {
                     title={`Download: ${log.download}ms`}
                   />
                 </div>
+
+                {/* Animated Expanded Telemetry Details */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      className="overflow-hidden mt-2.5 bg-zinc-50 border border-zinc-150 rounded-2xl p-3.5 space-y-2 text-[10px]"
+                    >
+                      <div className="flex justify-between items-center text-zinc-400 font-extrabold tracking-wider border-b border-zinc-200/60 pb-1.5 mb-1.5 uppercase">
+                        <span>Metric Phase</span>
+                        <span>Duration</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-1.5 text-cyan-600 font-bold uppercase tracking-wider">
+                          <span className="w-2 h-2 rounded-full bg-cyan-500" />
+                          <span>DNS Resolution</span>
+                        </div>
+                        <span className="font-mono text-zinc-800 font-semibold">{log.dns} ms</span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-1.5 text-amber-600 font-bold uppercase tracking-wider">
+                          <span className="w-2 h-2 rounded-full bg-amber-500" />
+                          <span>TCP Connection</span>
+                        </div>
+                        <span className="font-mono text-zinc-800 font-semibold">{log.connect} ms</span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-1.5 text-purple-600 font-bold uppercase tracking-wider">
+                          <span className="w-2 h-2 rounded-full bg-purple-500" />
+                          <span>Wait Time (TTFB)</span>
+                        </div>
+                        <span className="font-mono text-zinc-800 font-semibold">{log.ttfb} ms</span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-1.5 text-emerald-600 font-bold uppercase tracking-wider">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span>Download Latency</span>
+                        </div>
+                        <span className="font-mono text-zinc-800 font-semibold">{log.download} ms</span>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2 border-t border-zinc-200/60 text-zinc-500 font-extrabold uppercase tracking-wider">
+                        <span>Payload Size</span>
+                        <span className="text-zinc-800 font-mono normal-case">{formatSize(log.size)}</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
