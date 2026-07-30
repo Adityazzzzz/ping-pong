@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Switch } from './ui/switch';
 import { Badge } from './ui/badge';
 import { Database, Server, Globe, Copy, Check, Info } from 'lucide-react';
@@ -7,6 +7,7 @@ import { formatRelativeTime, getLatencyBadge } from '../lib/utils';
 export default function TargetCard({ monitor, onToggleActive, onClick, isSelected, onShowToast }) {
   const [copied, setCopied] = useState(false);
   const [hoveredTick, setHoveredTick] = useState(null);
+  const [localLatency, setLocalLatency] = useState(null);
 
   const providerIcons = {
     database: Database,
@@ -17,8 +18,35 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
 
   const Icon = providerIcons[monitor.type] || providerIcons.default;
 
+  // Run client-side local latency measurement to compare global vs local speed
+  useEffect(() => {
+    if (!monitor.active || !monitor.url) return;
+
+    let isMounted = true;
+    const testLocalPing = async () => {
+      const start = Date.now();
+      try {
+        await fetch(monitor.url, { 
+          method: 'GET',
+          mode: 'no-cors',
+          credentials: 'omit',
+          cache: 'no-store'
+        });
+        if (isMounted) setLocalLatency(Date.now() - start);
+      } catch (err) {
+        if (isMounted) setLocalLatency(Date.now() - start);
+      }
+    };
+
+    const timer = setTimeout(testLocalPing, 1200);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [monitor.url, monitor.active]);
+
   const handleCopyUrl = (e) => {
-    e.stopPropagation(); // Avoid selecting the card when copying URL
+    e.stopPropagation();
     navigator.clipboard.writeText(monitor.url);
     setCopied(true);
     if (onShowToast) onShowToast('Endpoint URL copied to clipboard');
@@ -26,8 +54,6 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
   };
 
   const sparklineLogs = (monitor.logs || []).slice(0, 12).reverse();
-
-  // Ensure exactly 12 ticks are rendered, backfilling with placeholders
   const totalTicks = 12;
   const placeholderCount = Math.max(0, totalTicks - sparklineLogs.length);
   const histogramTicks = [
@@ -45,7 +71,6 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
     return 'bg-emerald-50 text-emerald-700 border-emerald-200/50';
   };
 
-  // Determine dynamic stats display based on hover interaction
   const displayedLatency = hoveredTick ? hoveredTick.latency : monitor.latency;
   const displayedTime = hoveredTick ? hoveredTick.timestamp : monitor.lastPing;
   const isViewingHistory = hoveredTick !== null;
@@ -59,18 +84,18 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
           : 'hover:shadow-[0_20px_40px_rgba(0,0,0,0.035)] hover:-translate-y-1'
       } ${!monitor.active ? 'opacity-40 grayscale-[40%]' : ''}`}
     >
-      {/* Header: Icon + Name + Switch */}
+      {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-2.5">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-zinc-50 border border-zinc-200 text-zinc-950 shadow-sm flex items-center justify-center">
+          <div className="p-2.5 rounded-2xl bg-zinc-50 border border-zinc-200 text-zinc-950 shadow-sm flex items-center justify-center font-display">
             <Icon className="w-4.5 h-4.5 text-zinc-800" />
           </div>
           <div>
             <h4 className="text-base font-bold font-display text-zinc-950 tracking-tight truncate max-w-[180px]" title={monitor.name}>
               {monitor.name}
             </h4>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold font-display uppercase border ${getStatusBadgeClass(monitor.status)}`}>
+            <div className="flex items-center gap-1.5 mt-0.5 font-display">
+              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${getStatusBadgeClass(monitor.status)}`}>
                 {monitor.status || 'online'}
               </span>
             </div>
@@ -103,7 +128,7 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
         </button>
       </div>
 
-      {/* Latency Wave History (Interactive Hover Chart) */}
+      {/* Latency Wave History */}
       <div className="my-2">
         <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-2 font-mono">
           <span className="font-bold tracking-wider">LATENCY HISTOGRAM</span>
@@ -123,19 +148,18 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
 
             const latency = tick.latency || 50;
             const heightPercent = Math.min(Math.max((latency / 400) * 100, 25), 100);
-            const isSuccess = tick.status >= 200 && tick.status < 300;
-            const isWarning = tick.status >= 300 && tick.status < 400;
+            const isSuccess = tick.status >= 200 && tick.status < 400;
 
             let colorClass = 'bg-emerald-500/85 hover:bg-emerald-500';
-            if (isWarning) colorClass = 'bg-amber-500/90 hover:bg-amber-500';
-            if (!isSuccess && !isWarning) colorClass = 'bg-rose-500/90 hover:bg-rose-500';
+            if (tick.status >= 400) colorClass = 'bg-amber-500/90 hover:bg-amber-500';
+            if (tick.status === 0) colorClass = 'bg-rose-500/90 hover:bg-rose-500';
 
             return (
               <div
                 key={idx}
                 onMouseEnter={() => setHoveredTick(tick)}
                 onMouseLeave={() => setHoveredTick(null)}
-                title={`${tick.status} - ${tick.latency}ms (${formatRelativeTime(tick.timestamp)})`}
+                title={`${tick.status || 'Error'} - ${tick.latency}ms (${formatRelativeTime(tick.timestamp)})`}
                 style={{ height: `${heightPercent}%` }}
                 className={`w-[6px] rounded-full transition-all duration-300 cursor-pointer ${colorClass} ${
                   hoveredTick && hoveredTick.timestamp === tick.timestamp ? 'scale-y-[1.1] ring-1 ring-zinc-950/20' : ''
@@ -147,22 +171,39 @@ export default function TargetCard({ monitor, onToggleActive, onClick, isSelecte
       </div>
 
       {/* Metrics Row (Updates dynamically on hover) */}
-      <div className="pt-3 border-t border-zinc-200/60 flex items-center justify-between mt-2.5">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className={`text-xs font-mono px-2 py-0.5 border-zinc-200 text-zinc-650 bg-zinc-50 transition-all ${
-            isViewingHistory ? 'bg-zinc-950 text-white border-zinc-950 shadow-sm' : getLatencyBadge(displayedLatency)
-          }`}>
-            {displayedLatency > 0 ? `${displayedLatency} ms` : '--'}
-          </Badge>
-          <span className={`text-xs transition-all font-medium ${isViewingHistory ? 'text-zinc-950 font-bold' : 'text-zinc-500'}`}>
-            {isViewingHistory ? `Historical: ${formatRelativeTime(displayedTime)}` : formatRelativeTime(displayedTime)}
-          </span>
+      <div className="pt-3 border-t border-zinc-200/60 flex flex-col gap-2 mt-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Badge variant="outline" className={`text-xs font-mono px-2 py-0.5 border-zinc-200 text-zinc-650 bg-zinc-50 transition-all ${
+              isViewingHistory ? 'bg-zinc-950 text-white border-zinc-950 shadow-sm' : getLatencyBadge(displayedLatency)
+            }`}>
+              {displayedLatency > 0 ? `${displayedLatency} ms` : '--'}
+            </Badge>
+            <span className={`text-[10px] transition-all font-display font-bold uppercase tracking-wider ${isViewingHistory ? 'text-zinc-950 font-bold' : 'text-zinc-400'}`}>
+              {isViewingHistory ? `History: ${formatRelativeTime(displayedTime)}` : `Server (Vercel)`}
+            </span>
+          </div>
+
+          {!isViewingHistory && localLatency !== null && (
+            <div className="flex items-center gap-1.5 text-[10px] font-display font-bold uppercase tracking-wider text-zinc-400">
+              <span className="font-mono text-zinc-700 bg-zinc-150/80 border border-zinc-200 rounded px-1.5 py-0.5 text-xs normal-case">
+                {localLatency} ms
+              </span>
+              <span>Local (You)</span>
+            </div>
+          )}
         </div>
 
-        <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider flex items-center gap-1 group-hover:text-zinc-700 transition-colors">
-          <Info className="w-3.5 h-3.5" /> Details
-        </span>
+        <div className="flex items-center justify-between text-[10px] text-zinc-400 font-bold uppercase tracking-wider font-display">
+          <span className="font-medium">
+            {!isViewingHistory && monitor.lastPing ? `Checked ${formatRelativeTime(monitor.lastPing)}` : ''}
+          </span>
+          <span className="flex items-center gap-1 group-hover:text-zinc-700 transition-colors">
+            <Info className="w-3.5 h-3.5" /> Details
+          </span>
+        </div>
       </div>
+
     </div>
   );
 }
