@@ -16,6 +16,7 @@ export default async function handler(req, res) {
         id: crypto.randomUUID(),
         name: req.body.name,
         url: req.body.url,
+        networkUrl: req.body.networkUrl || null,
         type: req.body.type || 'web',
         interval: req.body.interval || 5,
         status: 'online',

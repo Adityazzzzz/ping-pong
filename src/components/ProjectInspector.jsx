@@ -42,7 +42,7 @@ export default function ProjectInspector({ monitor, onPingNow, onDelete, isPingi
         {/* Header */}
         <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-zinc-50 border border-zinc-200 text-zinc-800 flex items-center justify-center">
+            <div className="p-2.5 rounded-2xl bg-zinc-50 border border-zinc-200 text-zinc-800 flex items-center justify-center font-display">
               <Icon className="w-5 h-5 text-zinc-700" />
             </div>
             <div>
@@ -76,9 +76,9 @@ export default function ProjectInspector({ monitor, onPingNow, onDelete, isPingi
                   ? 'status-offline' 
                   : 'status-online'
               }`} />
-              <div>
-                <span className="text-[10px] text-zinc-400 block font-display font-bold">CURRENT STATUS</span>
-                <span className="text-xs font-semibold text-zinc-800 capitalize">{monitor.status || 'online'}</span>
+              <div className="font-display">
+                <span className="text-[10px] text-zinc-400 block font-bold">CURRENT STATUS</span>
+                <span className="text-xs font-bold text-zinc-800 capitalize">{monitor.status || 'online'}</span>
               </div>
             </div>
 
@@ -86,6 +86,43 @@ export default function ProjectInspector({ monitor, onPingNow, onDelete, isPingi
               {monitor.latency > 0 ? `${monitor.latency} ms` : '--'}
             </Badge>
           </div>
+
+          {/* Database & Network Processing Analytics */}
+          {monitor.networkLatency && monitor.latency && (
+            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-150 space-y-3 font-display">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block leading-none">
+                Uptime Processing Analytics
+              </span>
+
+              <div className="space-y-2">
+                {/* Visual Bar Graph */}
+                <div className="h-2 w-full bg-zinc-200 rounded-full overflow-hidden flex">
+                  <div 
+                    title={`Network: ${monitor.networkLatency}ms`}
+                    style={{ width: `${(monitor.networkLatency / monitor.latency) * 100}%` }}
+                    className="bg-cyan-500 h-full transition-all duration-300"
+                  />
+                  <div 
+                    title={`DB/App Process: ${Math.max(0, monitor.latency - monitor.networkLatency)}ms`}
+                    style={{ width: `${(Math.max(0, monitor.latency - monitor.networkLatency) / monitor.latency) * 100}%` }}
+                    className="bg-purple-500 h-full transition-all duration-300"
+                  />
+                </div>
+
+                {/* Legend */}
+                <div className="flex justify-between items-center text-[9px] font-extrabold uppercase tracking-wider">
+                  <div className="flex items-center gap-1 text-cyan-600">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
+                    <span>Network: {monitor.networkLatency} ms</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-purple-600">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+                    <span>Process/DB: {Math.max(0, monitor.latency - monitor.networkLatency)} ms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Configurations */}
           <div className="space-y-4">
@@ -105,7 +142,16 @@ export default function ProjectInspector({ monitor, onPingNow, onDelete, isPingi
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {monitor.networkUrl && (
+                <div>
+                  <span className="text-[10px] text-zinc-400 block mb-1">Network Reference URL</span>
+                  <div className="bg-zinc-50 px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs text-zinc-650 font-mono truncate">
+                    {monitor.networkUrl}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 font-display">
                 <div>
                   <span className="text-[10px] text-zinc-400 block mb-1">Interval Rate</span>
                   <div className="bg-zinc-50 px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs text-zinc-700 font-mono">
@@ -141,7 +187,7 @@ export default function ProjectInspector({ monitor, onPingNow, onDelete, isPingi
                     <div key={idx} className="flex items-start justify-between relative py-0.5">
                       <div className="absolute left-[-18px] top-2 flex items-center justify-center">
                         <span className={`w-2 h-2 rounded-full border border-zinc-200 ${
-                          log.status >= 200 && log.status < 300 
+                          log.status >= 200 && log.status < 400 
                             ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.3)]' 
                             : 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.3)]'
                         }`} />
@@ -150,13 +196,16 @@ export default function ProjectInspector({ monitor, onPingNow, onDelete, isPingi
                       <div className="pl-2 flex-1 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${
-                            log.status >= 200 && log.status < 300 
+                            log.status >= 200 && log.status < 400 
                               ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
                               : 'bg-rose-50 border-rose-200 text-rose-700'
                           }`}>
-                            {log.status}
+                            {log.status || 'ERR'}
                           </span>
-                          <span className="text-xs font-mono font-semibold text-zinc-850">{log.latency}ms</span>
+                          <span className="text-xs font-mono font-semibold text-zinc-850">
+                            {log.latency}ms
+                            {log.networkLatency ? ` (Net: ${log.networkLatency}ms)` : ''}
+                          </span>
                         </div>
                         <span className="text-[10px] text-zinc-400 font-mono">{formatRelativeTime(log.timestamp)}</span>
                       </div>

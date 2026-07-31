@@ -33,7 +33,22 @@ export default async function handler(req, res) {
 
     const results = await Promise.allSettled(
       activeMonitors.map(async (monitor) => {
-        const result = await pingTarget(monitor.url);
+        let result;
+        if (monitor.networkUrl) {
+          const [mainResult, netResult] = await Promise.all([
+            pingTarget(monitor.url),
+            pingTarget(monitor.networkUrl),
+          ]);
+          result = {
+            ...mainResult,
+            networkLatency: netResult.latency,
+          };
+          monitor.networkLatency = netResult.latency;
+        } else {
+          result = await pingTarget(monitor.url);
+          monitor.networkLatency = null;
+        }
+
         monitor.lastPing = result.timestamp;
         monitor.latency = result.latency;
         monitor.status =

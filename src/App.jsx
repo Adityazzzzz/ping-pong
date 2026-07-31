@@ -5,6 +5,7 @@ import CircularGauge from './components/CircularGauge';
 import TargetCard from './components/TargetCard';
 import InlineAddCard from './components/InlineAddCard';
 import ProjectInspector from './components/ProjectInspector';
+import ApiWaterfallCard from './components/ApiWaterfallCard';
 
 import {
   getStoredMonitors,
@@ -274,6 +275,9 @@ export default function App() {
               onChangeMode={setActiveMode}
             />
           </div>
+
+          {/* Card 4: Live API Network Auditor */}
+          <ApiWaterfallCard />
         </aside>
 
         {/* MAIN PANEL CONTENT CANVAS */}

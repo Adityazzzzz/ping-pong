@@ -5,8 +5,10 @@ import { Sparkles, X, Check } from 'lucide-react';
 export default function InlineAddCard({ onAddTarget, onCancel }) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
+  const [networkUrl, setNetworkUrl] = useState('');
   const [type, setType] = useState('database');
   const [interval, setInterval] = useState(5);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const presetTemplates = [
     { label: 'Supabase', name: 'Supabase DB', url: 'https://', type: 'database', interval: 5 },
@@ -29,6 +31,7 @@ export default function InlineAddCard({ onAddTarget, onCancel }) {
     onAddTarget({
       name,
       url,
+      networkUrl: networkUrl || null,
       type,
       interval: parseInt(interval, 10),
       method: 'GET',
@@ -101,6 +104,32 @@ export default function InlineAddCard({ onAddTarget, onCancel }) {
           </div>
         </div>
 
+        {/* Collapsible Advanced Section */}
+        <div className="border-t border-zinc-100/60 pt-2">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="text-[9px] font-bold text-zinc-400 hover:text-zinc-650 uppercase tracking-widest flex items-center gap-1 transition-all focus:outline-none"
+          >
+            {showAdvanced ? 'Hide Advanced Options' : 'Show Advanced Options'}
+          </button>
+          
+          {showAdvanced && (
+            <div className="mt-2 space-y-1.5 animate-fade-in">
+              <input
+                type="url"
+                placeholder="Network Reference URL (Optional)"
+                value={networkUrl}
+                onChange={(e) => setNetworkUrl(e.target.value)}
+                className="w-full px-3 py-1.5 rounded-xl bg-zinc-100/60 border border-zinc-200 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-zinc-400 transition-all font-mono"
+              />
+              <span className="text-[8px] text-zinc-450 block px-1 leading-tight">
+                Ping an awake static page to measure raw network lag vs database overhead.
+              </span>
+            </div>
+          )}
+        </div>
+
         {/* Preset selections */}
         <div>
           <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest block mb-1">QUICK TEMPLATES</span>
@@ -110,7 +139,7 @@ export default function InlineAddCard({ onAddTarget, onCancel }) {
                 key={idx}
                 type="button"
                 onClick={() => applyTemplate(tpl)}
-                className="py-1 px-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-[9px] text-zinc-600 hover:text-zinc-900 transition-all text-center"
+                className="py-1 px-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-[9px] text-zinc-600 hover:text-zinc-900 transition-all text-center font-display"
               >
                 {tpl.label}
               </button>
@@ -124,13 +153,13 @@ export default function InlineAddCard({ onAddTarget, onCancel }) {
             type="button"
             variant="ghost"
             onClick={onCancel}
-            className="flex-1 h-7 rounded-xl text-[11px] text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
+            className="flex-1 h-7 rounded-xl text-[11px] text-zinc-505 hover:text-zinc-800 hover:bg-zinc-100 font-display"
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            className="flex-1 h-7 rounded-xl text-[11px] bg-zinc-950 text-white font-semibold hover:bg-zinc-900 shadow-sm flex items-center justify-center gap-1"
+            className="flex-1 h-7 rounded-xl text-[11px] bg-zinc-950 text-white font-semibold hover:bg-zinc-900 shadow-sm flex items-center justify-center gap-1 font-display"
           >
             <Check className="w-3 h-3" /> Save Target
           </Button>

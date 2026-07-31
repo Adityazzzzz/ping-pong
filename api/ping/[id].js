@@ -35,7 +35,21 @@ export default async function handler(req, res) {
     const monitor = monitors.find((m) => m.id === id);
     if (!monitor) return res.status(404).json({ error: 'Monitor not found' });
 
-    const result = await pingTarget(monitor.url);
+    let result;
+    if (monitor.networkUrl) {
+      const [mainResult, netResult] = await Promise.all([
+        pingTarget(monitor.url),
+        pingTarget(monitor.networkUrl),
+      ]);
+      result = {
+        ...mainResult,
+        networkLatency: netResult.latency,
+      };
+      monitor.networkLatency = netResult.latency;
+    } else {
+      result = await pingTarget(monitor.url);
+      monitor.networkLatency = null;
+    }
 
     monitor.lastPing = result.timestamp;
     monitor.latency = result.latency;
